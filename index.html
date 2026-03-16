@@ -814,17 +814,60 @@ elasticity:[
 {q:"If elasticity is less than 1, demand is...",options:["Inelastic","Elastic","Unit elastic","Perfectly elastic"],a:0,feedback:"Inelastic demand means quantity demanded responds weakly to price changes."}]
 };
 
-const easyPools = {
-definition: questionBanks.easy.filter(q => q.type === "definition"),
-interpretation: questionBanks.easy.filter(q => q.type === "interpretation"),
-calculation: questionBanks.easy.filter(q => q.type === "calculation")
-};
-const mediumPools = {
-definition: questionBanks.medium.filter(q => q.type === "definition"),
-interpretation: questionBanks.medium.filter(q => q.type === "interpretation"),
-calculation: questionBanks.medium.filter(q => q.type === "calculation")
+let easyTagCycle = 0;
+const easyTags = ["risk","insurance","game_theory"];
+
+let easyIndex = {
+risk:{definition:0,interpretation:0,calculation:0},
+insurance:{definition:0,interpretation:0,calculation:0},
+game_theory:{definition:0,interpretation:0,calculation:0}
 };
 
+let mediumTagCycle = 0;
+const mediumTags = ["risk","insurance","game_theory"];
+
+let mediumIndex = {
+risk:{definition:0,interpretation:0,calculation:0},
+insurance:{definition:0,interpretation:0,calculation:0},
+game_theory:{definition:0,interpretation:0,calculation:0}
+};
+  
+const easyPools = {
+risk: {
+definition: questionBanks.easy.filter(q => q.tag === "risk" && q.type === "definition"),
+interpretation: questionBanks.easy.filter(q => q.tag === "risk" && q.type === "interpretation"),
+calculation: questionBanks.easy.filter(q => q.tag === "risk" && q.type === "calculation")
+},
+insurance: {
+definition: questionBanks.easy.filter(q => q.tag === "insurance" && q.type === "definition"),
+interpretation: questionBanks.easy.filter(q => q.tag === "insurance" && q.type === "interpretation"),
+calculation: questionBanks.easy.filter(q => q.tag === "insurance" && q.type === "calculation")
+},
+game_theory: {
+definition: questionBanks.easy.filter(q => q.tag === "game_theory" && q.type === "definition"),
+interpretation: questionBanks.easy.filter(q => q.tag === "game_theory" && q.type === "interpretation"),
+calculation: questionBanks.easy.filter(q => q.tag === "game_theory" && q.type === "calculation")
+}
+};
+  
+const mediumPools = {
+risk: {
+definition: questionBanks.medium.filter(q => q.tag === "risk" && q.type === "definition"),
+interpretation: questionBanks.medium.filter(q => q.tag === "risk" && q.type === "interpretation"),
+calculation: questionBanks.medium.filter(q => q.tag === "risk" && q.type === "calculation")
+},
+insurance: {
+definition: questionBanks.medium.filter(q => q.tag === "insurance" && q.type === "definition"),
+interpretation: questionBanks.medium.filter(q => q.tag === "insurance" && q.type === "interpretation"),
+calculation: questionBanks.medium.filter(q => q.tag === "insurance" && q.type === "calculation")
+},
+game_theory: {
+definition: questionBanks.medium.filter(q => q.tag === "game_theory" && q.type === "definition"),
+interpretation: questionBanks.medium.filter(q => q.tag === "game_theory" && q.type === "interpretation"),
+calculation: questionBanks.medium.filter(q => q.tag === "game_theory" && q.type === "calculation")
+}
+};
+ 
 let easyIndex = {
 definition:0,
 interpretation:0,
@@ -840,27 +883,27 @@ calculation:0
 function randomEasy(){
 
 let type;
-
 if(easyCycle === 0) type = "definition";
 if(easyCycle === 1) type = "interpretation";
 if(easyCycle === 2) type = "calculation";
-
 easyCycle = (easyCycle + 1) % 3;
 
-let pool = easyPools[type];
+let tag = easyTags[easyTagCycle];
+easyTagCycle = (easyTagCycle + 1) % 3;
+
+let pool = easyPools[tag][type];
 
 if(!pool || pool.length === 0){
-console.error("Easy pool missing:", type);
+console.error("Easy pool missing:", tag, type);
 return null;
 }
 
-let question = pool[easyIndex[type]];
+let question = pool[easyIndex[tag][type]];
+easyIndex[tag][type]++;
 
-easyIndex[type]++;
-
-if(easyIndex[type] >= pool.length){
+if(easyIndex[tag][type] >= pool.length){
 shuffleArray(pool);
-easyIndex[type] = 0;
+easyIndex[tag][type] = 0;
 }
 
 return question;
@@ -869,27 +912,27 @@ return question;
 function randomMedium(){
 
 let type;
-
 if(mediumCycle === 0) type = "definition";
 if(mediumCycle === 1) type = "interpretation";
 if(mediumCycle === 2) type = "calculation";
-
 mediumCycle = (mediumCycle + 1) % 3;
 
-let pool = mediumPools[type];
+let tag = mediumTags[mediumTagCycle];
+mediumTagCycle = (mediumTagCycle + 1) % 3;
+
+let pool = mediumPools[tag][type];
 
 if(!pool || pool.length === 0){
-console.error("Medium pool missing:", type);
+console.error("Medium pool missing:", tag, type);
 return null;
 }
 
-let question = pool[mediumIndex[type]];
+let question = pool[mediumIndex[tag][type]];
+mediumIndex[tag][type]++;
 
-mediumIndex[type]++;
-
-if(mediumIndex[type] >= pool.length){
+if(mediumIndex[tag][type] >= pool.length){
 shuffleArray(pool);
-mediumIndex[type] = 0;
+mediumIndex[tag][type] = 0;
 }
 
 return question;
