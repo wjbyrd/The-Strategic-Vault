@@ -367,6 +367,37 @@ animation:relicPulse 3s infinite;
 color:#e2e8f0;
 font-weight:600;
 }
+ 
+  
+/* Boss Images */
+
+.bossIcon{
+width:96px;
+height:auto;
+display:block;
+margin:0 auto 12px auto;
+animation:bossFloat 4s ease-in-out infinite;
+}
+
+.tyrantGlow{
+filter:drop-shadow(0 0 14px rgba(96,165,250,.8));
+}
+
+.underwriterGlow{
+filter:drop-shadow(0 0 14px rgba(168,85,247,.8));
+}
+
+.finalBoss{
+filter:drop-shadow(0 0 18px rgba(239,68,68,.9));
+}
+
+/* Floating animation */
+
+@keyframes bossFloat{
+0%{transform:translateY(0);}
+50%{transform:translateY(-6px);}
+100%{transform:translateY(0);}
+}
 
 </style>
 </head>
@@ -786,30 +817,70 @@ elasticity:[
 const easyPools = {
 definition: questionBanks.easy.filter(q => q.type === "definition"),
 interpretation: questionBanks.easy.filter(q => q.type === "interpretation"),
-trap: questionBanks.easy.filter(q => q.type === "trap")
+trap: questionBanks.easy.filter(q => q.type === "calculation")
 };
 const mediumPools = {
 definition: questionBanks.medium.filter(q => q.type === "definition"),
 interpretation: questionBanks.medium.filter(q => q.type === "interpretation"),
-trap: questionBanks.medium.filter(q => q.type === "trap")
+trap: questionBanks.medium.filter(q => q.type === "calculation")
 };
   
 function randomEasy(){
-    let type;
-    if(easyCycle === 0) type = "definition";
-    if(easyCycle === 1) type = "interpretation";
-    if(easyCycle === 2) type = "trap";
-    easyCycle = (easyCycle + 1) % 3;
-    return pickRandom(easyPools[type]);
+
+let type;
+
+if(easyCycle === 0) type = "definition";
+if(easyCycle === 1) type = "interpretation";
+if(easyCycle === 2) type = "calculation";
+
+easyCycle = (easyCycle + 1) % 3;
+
+let pool = easyPools[type];
+
+if(!pool || pool.length === 0){
+console.error("Easy pool missing:", type);
+return null;
+}
+
+let question = pool[easyIndex[type]];
+
+easyIndex[type]++;
+
+if(easyIndex[type] >= pool.length){
+shuffleArray(pool);
+easyIndex[type] = 0;
+}
+
+return question;
 }
 
 function randomMedium(){
-let type
-if(mediumCycle === 0) type = "interpretation"
-if(mediumCycle === 1) type = "trap"
-if(mediumCycle === 2) type = "definition"
-mediumCycle = (mediumCycle + 1) % 3
-return pickRandom(mediumPools[type]);
+
+let type;
+
+if(mediumCycle === 0) type = "definition";
+if(mediumCycle === 1) type = "interpretation";
+if(mediumCycle === 2) type = "calculation";
+
+mediumCycle = (mediumCycle + 1) % 3;
+
+let pool = mediumPools[type];
+
+if(!pool || pool.length === 0){
+console.error("Medium pool missing:", type);
+return null;
+}
+
+let question = pool[mediumIndex[type]];
+
+mediumIndex[type]++;
+
+if(mediumIndex[type] >= pool.length){
+shuffleArray(pool);
+mediumIndex[type] = 0;
+}
+
+return question;
 }
   
 function shuffleOptions(question){
@@ -1027,8 +1098,8 @@ function updateMazeTrack() {
             box.innerText = "🟥";
         } else {
             // Boss icons for future rooms
-            if (i === 10) box.innerText = "⚔";
-            else if (i === 20) box.innerText = "👹";
+            if (i === 10) box.innerText = "🎲";
+            else if (i === 20) box.innerText = "🛡️";
             else if (i === 30) box.innerText = "👑";
             else box.innerText = "⬛";
         }
@@ -1096,11 +1167,11 @@ function loadQuestion() {
 
     // 1. Determine Difficulty and Boss Status
     let diff = (room <= 9) ? "easy" : (room === 10) ? "easyBoss" : (room <= 19) ? "medium" : (room === 20) ? "mediumBoss" : (room <= 25) ? "hard" : (room <= 29) ? "calculation" : "finalBoss";
-if(diff.includes("Boss")){
-playBossMusic();
-}else{
-playExplorationMusic();
-}
+    if(diff.includes("Boss")){
+    playBossMusic();
+    }else{
+    playExplorationMusic();
+    }
 
     const isBoss = diff.includes("Boss");
     
