@@ -177,17 +177,15 @@ right:18px;
 transform:scaleX(-1);
 }
   
-@keyframes bossShake {
-0% { transform: translate(0,0); }
-20% { transform: translate(-20px,14px); }
-40% { transform: translate(20px,-14px); }
-60% { transform: translate(-18px,-16px); }
-80% { transform: translate(18px,16px); }
-100% { transform: translate(0,0); }
+.boss-shake {
+    animation: bossShake 0.5s cubic-bezier(.36,.07,.19,.97) both;
 }
 
-.boss-shake{
-animation: bossShake 0.6s ease;
+@keyframes bossShake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
 }
 
 .fullscreenBtn{
@@ -1455,6 +1453,7 @@ function answer(choice) {
 
     // --- 1. CORRECT ANSWER LOGIC ---
     if (choice === currentQuestion.a) {
+        
         // Handle Concept Detour Success
         if (detourActive) {
             detourActive = false;
@@ -1470,20 +1469,19 @@ function answer(choice) {
         if (streak > maxStreak) maxStreak = streak;
         handleStreakVisuals();
 
-        // Handle Boss Hit
+        // --- BOSS HIT LOGIC ---
         if (room === 10 || room === 20 || room === 30) {
             bossHealth--;
+
             if (bossHealth > 0) {
                 sfxMilestone.play(); 
                 msgElement.innerHTML = `<span style='color:#f87171;font-weight:bold;'>⚔ HIT! Boss Health: ${bossHealth}/3</span>`;
-                // Add a shake effect to the boss icon
-                const icon = document.querySelector(".bossIcon");
-                if(icon) icon.classList.add("boss-shake");
                 
-                setTimeout(() => {
-                    if(icon) icon.classList.remove("boss-shake");
-                    loadQuestion(); 
-                }, 1500);
+                // CALL THE SHAKE FUNCTION HERE
+                triggerBossShake();
+                
+                // Wait for the animation/message before loading next boss question
+                setTimeout(loadQuestion, 1500);
                 return; 
             } else {
                 // Boss Defeated
@@ -1492,12 +1490,12 @@ function answer(choice) {
                 if(room === 30) unlockArtifact('crown');
 
                 showKnowledgeRoom(room);
-                bossHealth = 3; // Reset for next boss
+                bossHealth = 3; 
                 return;
             }
         }
 
-        // Normal Progression
+        // Normal Room Progression
         msgElement.innerHTML = "";
         room++;
         localStorage.setItem("gauntletRoom", room);
@@ -1509,7 +1507,7 @@ function answer(choice) {
         streak = 0;
         document.getElementById("streakDisplay").innerText = "";
 
-        // a) Handle Detour Failure (Don't loop detours, just kick them back)
+        // a) Handle Detour Failure
         if (detourActive) {
             detourActive = false;
             room = Math.max(1, detourReturnRoom - 1);
@@ -1519,22 +1517,16 @@ function answer(choice) {
             return;
         }
 
-        // b) Handle Boss Failure (Complete Reset of health and significant setback)
+        // b) Handle Boss Failure
         const isBossRoom = (room % 10 === 0);
         if (isBossRoom) {
             bossHealth = 3;
-            room = room - 3; // Kick back 3 rooms from a boss fail
+            room = room - 3; 
         } else {
             // c) Trigger Adaptive Concept Detour
             if (currentQuestion.tag) {
                 conceptMemory[currentQuestion.tag]++;
-                let conceptPool = null;
-                
-                if (room <= 9 && easyConceptPools[currentQuestion.tag]) {
-                    conceptPool = easyConceptPools[currentQuestion.tag];
-                } else if (room >= 11 && room <= 19 && mediumConceptPools[currentQuestion.tag]) {
-                    conceptPool = mediumConceptPools[currentQuestion.tag];
-                }
+                let conceptPool = (room <= 9) ? easyConceptPools[currentQuestion.tag] : mediumConceptPools[currentQuestion.tag];
 
                 if (conceptPool) {
                     detourActive = true;
@@ -1549,7 +1541,7 @@ function answer(choice) {
                 }
             }
             
-            // d) Standard room fail (1 or 2 rooms back)
+            // d) Standard room fail
             room = Math.max(1, room - (room >= 21 ? 2 : 1));
         }
 
@@ -1634,15 +1626,19 @@ drop.style.display = "block";
 
 }
 
-function triggerBossShake(){
-const box = document.getElementById("gameBox");
-box.classList.remove("boss-shake");
-void box.offsetWidth; // forces browser reflow
-box.classList.add("boss-shake");
-setTimeout(()=>{
-box.classList.remove("boss-shake");
-},600);
+function triggerBossShake() {
+    const icon = document.querySelector(".bossIcon");
+    if (!icon) return;
 
+    // 1. Remove the class first
+    icon.classList.remove("boss-shake");
+
+    // 2. Magic trick: Force a browser "reflow" 
+    // This makes the browser 'forget' the class was removed so it can re-apply it
+    void icon.offsetWidth;
+
+    // 3. Add the class back
+    icon.classList.add("boss-shake");
 }
   
 function handleVictory() {
