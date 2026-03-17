@@ -1023,26 +1023,31 @@ feedback:`Expected loss is $${ev}. A risk-averse individual may still buy insura
   
 function getStrategicDominant(){
 
-// generate payoffs
-let A1 = Math.floor(Math.random()*5)+1;
-let A2 = Math.floor(Math.random()*5)+1;
-let A3 = Math.floor(Math.random()*5)+1;
-let A4 = Math.floor(Math.random()*5)+1;
+// --- Generate Player A payoffs (force dominance) ---
+let base1 = Math.floor(Math.random()*5)+1;
+let base2 = Math.floor(Math.random()*5)+1;
 
-// force a dominant structure
-// Strategy 1 dominates Strategy 2 for Player A
-let topLeft = A1 + 3;
-let bottomLeft = A1;
-let topRight = A2 + 3;
-let bottomRight = A2;
+// A: Up always better than Down
+let TL_A = base1 + 3;
+let BL_A = base1;
 
+let TR_A = base2 + 3;
+let BR_A = base2;
+
+// --- Generate Player B payoffs (random, irrelevant to A's dominance) ---
+let TL_B = Math.floor(Math.random()*5)+1;
+let TR_B = Math.floor(Math.random()*5)+1;
+let BL_B = Math.floor(Math.random()*5)+1;
+let BR_B = Math.floor(Math.random()*5)+1;
+
+// --- Build clean matrix ---
 let question = `Player A chooses between Up or Down. Player B chooses Left or Right.
 
-Payoffs to Player A:
+Payoff matrix (A,B):
 
-            B: Left     B: Right  
-A: Up       ${topLeft}          ${topRight}  
-A: Down     ${bottomLeft}          ${bottomRight}  
+            B: Left        B: Right  
+A: Up       (${TL_A},${TL_B})     (${TR_A},${TR_B})  
+A: Down     (${BL_A},${BL_B})     (${BR_A},${BR_B})  
 
 What is Player A’s dominant strategy?`;
 
@@ -1056,7 +1061,7 @@ q: question,
 options: options,
 a: options.indexOf(correct),
 tag:"game_theory",
-feedback:"Up yields a higher payoff than Down regardless of what Player B does. That’s a dominant strategy."
+feedback:"Compare Player A’s payoffs across each column. Up yields a higher payoff than Down regardless of Player B’s choice."
 };
 
 }
@@ -1204,11 +1209,11 @@ easyBoss: [], mediumBoss: [], finalBoss: []
 };
 
 function randomQuestion(poolName) {
-    // --- SPECIAL CALCULATED ROOMS (26-29) ---
+    // --- SPECIAL CALCULATED ROOMS (18,19, 26-29) ---
     // These ensure the student practices specific math skills before the boss
     if (room === 18) return getRiskMedium();
     if (room === 19) return getInsuranceMedium();
-    if (room === 26) return getStrategicDominat();
+    if (room === 26) return getStrategicDominant();
     if (room === 27) return getStrategicNash();
     if (room === 28) return getStrategicBestResponse();
     if (room === 29) return getStrategicCooperation();
@@ -1399,20 +1404,31 @@ function loadQuestion() {
         ${currentQuestion.q}
       </div>`;
   } else {
-    if(diff === "calculation"){
+  if(diff === "calculation"){
+    // --- HARD OVERRIDES FIRST ---
+    if(room === 18){
+        currentQuestion = shuffleOptions(getRiskMedium());
+    }
+    else if(room === 19){
+        currentQuestion = shuffleOptions(getInsuranceMedium());
+    }
+    else if(room === 26){
+        currentQuestion = shuffleOptions(getStrategicDominant());
+    }
+    else if(room === 27){
+        currentQuestion = shuffleOptions(getStrategicNash());
+    }
+    else if(room === 28){
+        currentQuestion = shuffleOptions(getStrategicBestResponse());
+    }
+    else if(room === 29){
+        currentQuestion = shuffleOptions(getStrategicCooperation());
+    }
+    else{
         const generator = pickCalcGenerator();
         currentQuestion = shuffleOptions(generator());
     }
-    else if(diff === "easy"){
-        currentQuestion = shuffleOptions(randomEasy());
-    }
-    else if(diff === "medium"){
-        currentQuestion = shuffleOptions(randomMedium());
-    }
-    else{
-        currentQuestion = shuffleOptions(randomQuestion(diff));
-    }
-
+  }
     bossMsg.innerText = (room === 9 || room === 19 || room === 29)
         ? "⚠️ DANGER: BOSS DETECTED IN NEXT ROOM ⚠️"
         : "";
