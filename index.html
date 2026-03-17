@@ -1406,8 +1406,6 @@ if (isBoss) {
             ${currentQuestion.q}
         </div>`;
 } else {
-// --- DETERMINE QUESTION SOURCE ---
-let diff = difficulty();
 
 // --- 1. SPECIAL ROOMS (ABSOLUTE PRIORITY) ---
 if(room === 18){
@@ -1428,15 +1426,8 @@ else if(room === 28){
 else if(room === 29){
     currentQuestion = shuffleOptions(getStrategicCooperation());
 }
-// --- 2. BOSS ROOMS ---
-else if(diff === "easyBoss" || diff === "mediumBoss" || diff === "finalBoss"){
-    let bossPool = questionBanks[diff];
-    let index = Math.max(0, 3 - bossHealth);
-    index = Math.max(0, Math.min(index, bossPool.length - 1));
-    currentQuestion = shuffleOptions(bossPool[index]);
-}
 
-// --- 3. NORMAL FLOW ---
+// --- 2. NORMAL FLOW ---
 else if(diff === "easy"){
     currentQuestion = shuffleOptions(randomEasy());
 }
@@ -1456,7 +1447,6 @@ if(!currentQuestion){
     console.error("No question generated");
     return;
 }
-document.getElementById("formulaHint").innerText = currentQuestion.hint ? "💡 Hint: " + currentQuestion.hint : "";
 // --- UI ---
 bossMsg.innerText = (room === 9 || room === 19 || room === 29)
     ? "⚠️ DANGER: BOSS DETECTED IN NEXT ROOM ⚠️"
