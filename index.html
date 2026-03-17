@@ -856,6 +856,12 @@ let tag = easyTags[easyTagCycle];
 easyTagCycle = (easyTagCycle + 1) % easyTags.length;
 
 let pool = easyPools[tag][type];
+let recent = questionHistory.easy.slice(-3);
+let filteredPool = pool.filter(q => !recent.includes(q.id));
+
+if(filteredPool.length > 0){
+    pool = filteredPool;
+}
 
 if(!pool || pool.length === 0){
 console.warn("Missing pool:", tag, type);
@@ -871,6 +877,12 @@ pool = fallbackPool[Math.floor(Math.random() * fallbackPool.length)];
 }
 
 let question = pool[easyIndex[tag][type]];
+// 🔥 TRACK HISTORY HERE
+questionHistory.easy.push(question.id);
+if(questionHistory.easy.length > 10){
+    questionHistory.easy.shift();
+}
+
 easyIndex[tag][type]++;
 
 if(easyIndex[tag][type] >= pool.length){
@@ -893,6 +905,12 @@ let tag = mediumTags[mediumTagCycle];
 mediumTagCycle = (mediumTagCycle + 1) % mediumTags.length;
 
 let pool = mediumPools[tag][type];
+let recent = questionHistory.medium.slice(-3);
+let filteredPool = pool.filter(q => !recent.includes(q.id));
+
+if(filteredPool.length > 0){
+    pool = filteredPool;
+}
 
 if(!pool || pool.length === 0){
 console.warn("Missing pool:", tag, type);
@@ -908,6 +926,11 @@ pool = fallbackPool[Math.floor(Math.random() * fallbackPool.length)];
 }
 
 let question = pool[mediumIndex[tag][type]];
+// 🔥 TRACK HISTORY HERE
+questionHistory.medium.push(question.id);
+if(questionHistory.medium.length > 10){
+    questionHistory.medium.shift();
+}
 mediumIndex[tag][type]++;
 
 if(mediumIndex[tag][type] >= pool.length){
@@ -1370,8 +1393,8 @@ function loadQuestion() {
     // 3. Select the Question
     if (isBoss) {
         if (bossHealth === 3) {
-            const pool = questionBanks[diff];
-            bossPool = shuffle([...pool]);
+        const pool = questionBanks[diff].map(q => ({...q}));
+        bossPool = shuffle(pool);
         }
         currentQuestion = bossPool[3 - bossHealth];
         
