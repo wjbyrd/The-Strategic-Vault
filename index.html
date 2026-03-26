@@ -8,7 +8,7 @@
    
 <style>
 /* =========================================
-   1. GLOBAL LAYOUT & BACKGROUND
+   1. GLOBAL LAYOUT & BACKGROUND (CHANGE PNG WITH NEW GAME)
 ========================================= */
 body {
     font-family: Arial, sans-serif;
@@ -148,7 +148,7 @@ button:active {transform: scale(0.96);}
 .right-torch { right: 18px; transform: scaleX(-1); }
 
 /* =========================================
-   8. TRANSITIONS & SCREENS
+   8. TRANSITIONS & SCREENS (CHANGE PNG WITH NEW GAME)
 ========================================= */
 #startScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url('start screen image.png'); background-size: cover; background-position: center; background-repeat: no-repeat; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 
@@ -310,7 +310,10 @@ button:active {transform: scale(0.96);}
    
 </style>
 </head>
-
+    
+/* =========================================
+   1. BEGIN HTML ELEMENTS (CHANGE ELEMENTS WITH NEW GAME)
+========================================= */
 <body>
   <div id="srAnnouncements"
      aria-live="assertive"
@@ -387,6 +390,10 @@ button:active {transform: scale(0.96);}
         </div>
     </div>
 </div>
+
+/* =========================================
+   2. GAME ELEMENTS (CHANGE ELEMENTS WITH NEW GAME)
+========================================= */    
 <script>
 const bgMusic = new Audio('chamber.wav'); 
 bgMusic.loop = true; 
@@ -493,19 +500,31 @@ function weightedPick(pool){
     return weightedPool[Math.floor(Math.random() * weightedPool.length)];
 }
 
-function getAdaptiveQuestion(poolName){
+function getAdaptiveQuestion(poolName, targetTag = null){
     let pool = questionBanks[poolName];
+    // --- 🎯 TARGET SPECIFIC TAG IF PROVIDED ---
+    if(targetTag){
+        let filtered = pool.filter(q => q.tag === targetTag);
+
+        // Only use filtered if it actually has questions
+        if(filtered.length > 0){
+            pool = filtered;
+        }
+    }
+
     let recent = questionHistory[poolName].slice(-5);
     let available = pool.filter(q => !recent.includes(q.id));
     if(available.length === 0){
         available = pool;
     }
     let picked = weightedPick(available);
+
     // Track history
     questionHistory[poolName].push(picked.id);
     if(questionHistory[poolName].length > 10){
         questionHistory[poolName].shift();
     }
+
     // Track tag exposure
     if(picked.tag){
         tagHistory.push(picked.tag);
@@ -516,6 +535,7 @@ function getAdaptiveQuestion(poolName){
     return picked;
 }
 
+// 3. Game timing and artifacts (CHANGE VAULT ITEMS WITH NEW GAME)
 const TIMING = {
     normal: 1200,
     boss: 1000,
@@ -540,16 +560,15 @@ img:"core_of_equilibrium.png",
 title:"Core of Equilibrium",
 text:"The Core of Equilibrium. Every path leads here. Every decision resolves here. The system is no longer uncertain—it is known."
 }
-
 };
   
-// Restore saved username if it exists
+// 4. Restore saved username if it exists
 const savedUser = localStorage.getItem("gauntletUser");
 if(savedUser){
 document.getElementById("usernameInput").value = savedUser;
 }
 
-// 3. Entry Logic
+// 5. Entry Logic
 function startGame() {
     let inputName = document.getElementById("usernameInput").value.trim();
     if (!inputName) {
@@ -560,7 +579,7 @@ function startGame() {
     username = inputName;
     localStorage.setItem("gauntletUser", username);
 
- // RESET GAME STATE
+ // RESET GAME STATE (CHANGE VAULT ITEMS WITH NEW GAME)
     room = 1;
     bossHealth = 3;
     streak = 0;
@@ -579,23 +598,23 @@ function startGame() {
     easyBoss: [], mediumBoss: [], finalBoss: []
     };
     
-    // Reveal the game and torches
+    // Reveal the game and torches (CHANGE VAULT ITEMS WITH NEW GAME
     document.getElementById("startScreen").style.display = "none";
     document.getElementById("gameBox").style.display = "block";
     document.getElementById("artifactVault").style.display = "block";
     document.querySelectorAll(".torch").forEach(t => t.style.display = "block");
     
-  if(localStorage.getItem("vaultDice")){
+      if(localStorage.getItem("vaultDice")){
         document.getElementById("vaultDice").classList.add("unlocked");
-    }
+        }
 
-    if(localStorage.getItem("vaultShield")){
+        if(localStorage.getItem("vaultShield")){
         document.getElementById("vaultShield").classList.add("unlocked");
-    }
+        }
 
-    if(localStorage.getItem("vaultCore")){
+        if(localStorage.getItem("vaultCore")){
         document.getElementById("vaultCore").classList.add("unlocked");
-    }
+        }
   
 // Start atmosphere and timer
     bgMusic.play().catch(e => console.log("Audio started"));
@@ -603,7 +622,7 @@ function startGame() {
     loadQuestion();
 }
 
-// 4. Enter Key Support
+// 6. Enter Key Support
 document.getElementById("usernameInput").addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
         event.preventDefault();
@@ -611,7 +630,7 @@ document.getElementById("usernameInput").addEventListener("keypress", function(e
     }
 });
 
-// 5. Your Lore & Logic (Area Names)
+// 7. Your Lore & Logic (Area Names - CHANGE WITH NEW GAME)
 function getAreaName(r) {
     if (r <= 9) return "The Vault of Chance";
     if (r === 10) return "The Dice Tyrant's Pit";
@@ -623,7 +642,7 @@ function getAreaName(r) {
 }
 
 // =============================
-// WIZARD DIALOGUE SYSTEM
+// WIZARD DIALOGUE SYSTEM (CHANGE WITH NEW GAME)
 // Lines used during transitions
 // =============================
 const wizardFeedback = {
@@ -670,6 +689,7 @@ const wizardLines = {
     ]
 };
 
+// -- functions to place Wizard dialogue in game --    
 function getWizardLine(type){
     const pool = wizardLines[type] || wizardLines.default;
     return pool[Math.floor(Math.random() * pool.length)];
@@ -685,7 +705,7 @@ function wizardSpeak(text){
     msg.innerText = text;
 }
   
-// --- Question Pools follow below ---
+// --- Question Pools follow below (CHANGE WITH NEW GAME) ---
   
 const questionBanks = {
 easyBoss:[
@@ -703,7 +723,7 @@ finalBoss:[
 {id:208,q:"The Convergence tightens: A firm threatens to cut prices if entry occurs, but doing so reduces its own profit. Why does this fail?",options:["The threat is not credible because it is not optimal in the relevant subgame","The firm cannot commit to a dominant strategy in advance","The threat changes the payoff matrix faced by competitors","The outcome eliminates equilibrium from the game entirely"],a:0,feedback:"Subgame perfect equilibrium removes non-credible threats."},
 {id:209,q:"Final judgment: Cooperation in an infinitely repeated Prisoner’s Dilemma depends on what?",options:["Future payoffs being valued enough to outweigh short-term gains from defection","Players adjusting strategies based on incomplete information","Repeated interaction changing the structure of payoffs over time","The ability of players to observe each other’s actions consistently"],a:0,feedback:"Cooperation is sustained when future punishment outweighs short-term gains."}
 ],
-    easy: [
+easy: [
 {id:1,q:"Expected value represents...",options:["The average outcome weighted by probabilities","The highest possible payoff","The lowest payoff","The most common outcome"],a:0,tag:"risk",type:"definition",feedback:"Expected value multiplies each outcome by its probability and sums the results."},
 {id:2,q:"A gamble pays $100 with probability 0.5 and $0 with probability 0.5. What is the expected value?",options:["$50","$25","$75","$100"],a:0,tag:"risk",type:"calculation",feedback:"Expected value = (100 × 0.5) + (0 × 0.5) = $50."},
 {id:3,q:"A risk-averse person prefers...",options:["A certain outcome over an equal-value gamble","A risky outcome with equal expected value","The gamble with the highest variance","Random outcomes"],a:0,tag:"risk",type:"definition",feedback:"Risk-averse individuals prefer certainty even when expected value is the same."},
@@ -793,7 +813,6 @@ medium: [
 {id:85, q:"An insurer cannot distinguish between risk types and sets one premium. A student says this is inefficient because firms are irrational. What is the correct explanation?",options:["Information asymmetry leads to pooling","Firms are irrational","Markets fail completely","Risk disappears"],a:0,type:"interpretation",tag:"insurance",feedback:"Students often attribute outcomes to irrationality rather than asymmetric information."},
 {id:86, q:"A player randomizes strategies in equilibrium. A student says this is because the player is uncertain. What is the correct reason?",options:["To make the opponent indifferent between strategies","Because payoffs are unknown","Because strategies are random","Because equilibrium requires it"],a:0,type:"interpretation",tag:"game_theory",feedback:"Randomization is strategic—it prevents opponents from exploiting predictable behavior."}    
 ], 
-    
 hard:[
 {id:100, q:"A risk-averse individual faces a gamble with a higher expected value than a certain outcome but still chooses the certain outcome. What must be true?",options:["The expected utility of the gamble is lower than the utility of the certain outcome","The individual miscalculated probabilities","The gamble has lower variance","The individual is risk neutral"],a:0,feedback:"Risk-averse individuals maximize expected utility, not expected value. A higher expected value gamble can still provide lower utility."},
 {id:101, q:"Two firms are in a Prisoner’s Dilemma. They both prefer cooperation but end up defecting. What is the core reason this outcome persists?",options:["Each firm’s best response is to defect regardless of the other’s action","Firms cannot calculate payoffs","Cooperation yields lower profits","The game lacks a Nash equilibrium"],a:0,feedback:"Defection is the dominant strategy, making it the Nash equilibrium even though cooperation would be better collectively."},
@@ -904,6 +923,10 @@ function shuffleOptions(question){
 
     return q;
 }
+
+/* =========================================
+   RNG QUESTIONS (CHANGE WITH NEW GAME)
+========================================= */
     
 function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
@@ -938,7 +961,6 @@ type:"calculation",
 tag:"risk",
 feedback:`Expected value = ${p} × ${payoff} = $${ev}.`
 };
-
 }
 
 function getInsuranceMedium(){
@@ -987,7 +1009,6 @@ type:"calculation",
 tag:"insurance",
 feedback: feedback
 };
-
 }
   
 function getStrategicDominant(){
@@ -1037,7 +1058,6 @@ type:"interpretation",
 tag:"game_theory",
 feedback:"Compare Player A’s payoffs across both possible actions of Player B. Up always yields a higher payoff, so it is dominant."
 };
-
 }
 
 function getStrategicNash(){
@@ -1083,7 +1103,6 @@ type:"interpretation",
 tag:"game_theory",
 feedback:"Each player has an incentive to defect regardless of the other’s choice. Defect is the best response, making (Defect, Defect) the Nash equilibrium."
 };
-
 }
 
 function getStrategicBestResponse(){
@@ -1122,7 +1141,6 @@ type:"interpretation",
 tag:"game_theory",
 feedback:"A best response depends only on the opponent’s chosen action. Compare payoffs under Left: the higher payoff determines the best response."
 };
-
 }
 
 function getStrategicCooperation(){
@@ -1172,8 +1190,8 @@ type:"interpretation",
 tag:"game_theory",
 feedback:`Cooperation value ≈ ${cooperateValue.toFixed(1)}, deviation value ≈ ${cheatValue.toFixed(1)}. The decision depends on whether future punishment outweighs the short-term gain from defection.`
 };
-
 }
+    
 const calculationGenerators = [
     getRiskMedium,
     getInsuranceMedium,
@@ -1315,7 +1333,7 @@ function playFinalBossMusic(){
     currentMusic = "finalBoss";
 }
   
-  function loadQuestion() {
+function loadQuestion() {
     updateMazeTrack();
     const questionElement = document.getElementById("question");
     const msgElement = document.getElementById("message");
@@ -1338,7 +1356,7 @@ function playFinalBossMusic(){
         playExplorationMusic();
         }
 
-   const isBoss = diff.includes("Boss");
+    const isBoss = diff.includes("Boss");
     const shell = document.getElementById("gameShell");
 
     // SINGLE SOURCE OF TRUTH
@@ -1351,7 +1369,7 @@ function playFinalBossMusic(){
     document.getElementById("areaDisplay").innerText = `${getAreaName(room)} (${room}/30)`;
     document.getElementById("srAnnouncements").innerText = `Entering ${getAreaName(room)}. Room ${room} of 30.`;
 
-    // 3. Select the Question
+    // 3. Select the Question (CHANGE BOSS NAMES AND PNG)
     if (isBoss) {
         if (bossHealth === 3) {
         bossPool = [...questionBanks[diff]]; // ← NO SHUFFLE
@@ -1392,12 +1410,24 @@ function playFinalBossMusic(){
     // --- STREAK ADAPTIVE LOGIC ---
     let adjustedDiff = diff;
 
-    if(streak >= 5 && room < 25){
+    // --- FIND STRONGEST AREA (lowest weakness) ---
+    let strongestTag = null;
+    let lowestValue = Infinity;
+
+    for(let tag in conceptMemory){
+        if(conceptMemory[tag] < lowestValue){
+            lowestValue = conceptMemory[tag];
+            strongestTag = tag;
+            }
+        }
+
+    // --- ADAPTIVE ESCALATION ---
+    if(streak >= 8 && lowestValue < 1.5 && room < 25){
         adjustedDiff = "hard";
-    }
-    else if(streak >= 3 && room < 20){
+        }
+    else if(streak >= 5 && lowestValue < 2.5 && room < 20){
         adjustedDiff = "medium";
-    }
+        }
 
 // =============================
 // QUESTION SELECTION
@@ -1407,7 +1437,14 @@ if(adjustedDiff === "calculation"){
     const generator = pickCalcGenerator();
     currentQuestion = shuffleOptions(generator());
 }
+else if(adjustedDiff === "hard" && strongestTag){
+    // 🔥 TARGET STRONGEST AREA FOR HARD QUESTIONS
+    currentQuestion = shuffleOptions(
+        getAdaptiveQuestion(adjustedDiff, strongestTag)
+    );
+}
 else{
+    // normal behavior
     currentQuestion = shuffleOptions(
         getAdaptiveQuestion(adjustedDiff)
     );
@@ -1511,7 +1548,7 @@ function answer(choice) {
         return;
         }
 
-        // Boss defeated
+        // Boss defeated (CHANGE ARTIFACT NAMES)
         if(room === 10){
         document.getElementById("vaultDice").classList.add("unlocked");
         localStorage.setItem("vaultDice", "true");
@@ -1615,7 +1652,7 @@ function unlockArtifact(key) {
     showArtifact(artifacts[key].img, artifacts[key].title, artifacts[key].text);
 }
     
-// Helper to keep the answer function clean
+// Helper to keep the answer function clean (CHANGE MESSAGE AND ICONS WITH NEW GAME)
 function handleStreakVisuals() {
     let streakMsg = "";
     let streakColor = "#60a5fa";
@@ -1637,49 +1674,46 @@ else if (streak === 20) {streakMsg = "♟ STREAK: Strategic Dominance!";streakCo
 }
 
 function showHallwayTransition(feedback){
-
-const overlay = document.getElementById("hallwayTransition");
-const text = document.getElementById("hallwayText");
+    const overlay = document.getElementById("hallwayTransition");
+    const text = document.getElementById("hallwayText");
 
 // pick a random hallway image
-const randomHall = hallwayImages[Math.floor(Math.random()*hallwayImages.length)];
+    const randomHall = hallwayImages[Math.floor(Math.random()*hallwayImages.length)];
 
-overlay.style.background =
-`linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)), url('${randomHall}')`;
+    overlay.style.background =
+    `linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)), url('${randomHall}')`;
 
-overlay.style.backgroundSize = "cover";
-overlay.style.backgroundPosition = "center";
+    overlay.style.backgroundSize = "cover";
+    overlay.style.backgroundPosition = "center";
 
-text.innerHTML = `
-<div style="font-size:22px;margin-bottom:15px;color:#4ade80;">${getWizardFeedback("correct")}</div>
-<div style="font-size:18px;opacity:.9;">${feedback}</div>
-<div style="margin-top:25px;font-size:14px;opacity:.7;">You move deeper into the archives...</div>
-`;
+    text.innerHTML = `
+    <div style="font-size:22px;margin-bottom:15px;color:#4ade80;">${getWizardFeedback("correct")}</div>
+    <div style="font-size:18px;opacity:.9;">${feedback}</div>
+    <div style="margin-top:25px;font-size:14px;opacity:.7;">You move deeper into the archives...</div>
+    `;
 
-overlay.classList.add("active");
+    overlay.classList.add("active");
 
-document.getElementById("srAnnouncements").innerText =`Correct. ${feedback}`;
+    document.getElementById("srAnnouncements").innerText =`Correct. ${feedback}`;
 
-setTimeout(()=>{
-overlay.classList.remove("active");
-loadQuestion();
-},3200);
-
+    setTimeout(()=>{
+    overlay.classList.remove("active");
+    loadQuestion();
+    },3200);
 }
   
 function showArtifact(img,title,text){
 
-let drop = document.getElementById("artifactDrop");
-let image = document.getElementById("artifactImage");
-let t = document.getElementById("artifactTitle");
-let p = document.getElementById("artifactText");
+    let drop = document.getElementById("artifactDrop");
+    let image = document.getElementById("artifactImage");
+    let t = document.getElementById("artifactTitle");
+    let p = document.getElementById("artifactText");
 
-image.src = img;
-t.innerText = title;
-p.innerText = text;
+    image.src = img;
+    t.innerText = title;
+    p.innerText = text;
 
-drop.style.display = "block";
-
+    drop.style.display = "block";
 }
     
 function triggerBossShake() {
@@ -1724,7 +1758,7 @@ function handleVictory() {
     const accuracy = Math.round((correctAnswers / totalAttempts) * 100);
     const verificationCode = generateCode(username, accuracy, maxStreak, totalAttempts);
 
-    // --- ARCHIVIST JUDGMENT ---
+    // --- ARCHIVIST JUDGMENT (CHANGE LINES WITH NEW GAME) ---
     let archivistLine = "";
     if(accuracy >= 90){
         archivistLine = "You have mastered the Vault. Few reach this level of clarity.";
@@ -1783,7 +1817,8 @@ function handleVictory() {
         }
     }, 600);
 }
-  
+
+// --- Function to clear the boss rooms (CHANGE TITLES AND SUMMARIES WITH NEW GAME) ---    
 function showKnowledgeRoom(bossRoom) {
     playExplorationMusic();  
   
@@ -1883,8 +1918,10 @@ function copyResults() {
     navigator.clipboard.writeText(shareText).then(() => {
         const btn = document.getElementById("shareBtn");
         const originalText = btn.innerText;
+       
         btn.innerText = "✅ Copied to Clipboard!";
         btn.style.background = "#059669";
+      
         setTimeout(() => {
             btn.innerText = originalText;
             btn.style.background = "#374151";
