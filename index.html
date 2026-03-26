@@ -448,6 +448,8 @@ let room = localStorage.getItem("gauntletRoom") ? parseInt(localStorage.getItem(
 let currentQuestion = null;
 let detourActive = false;
 let detourReturnRoom = null;
+let conceptMemory = {};
+let weakTags = {};
 let lastTypes = [];
 let easyCycle = 0 ;
 let mediumCycle = 0;
@@ -1173,12 +1175,6 @@ const calculationGenerators = [
     getStrategicCooperation
 ];
     
-// Keep track of the last few questions to prevent repeats
-let questionHistory = {
-easy: [], medium: [], hard: [], calculation: [],
-easyBoss: [], mediumBoss: [], finalBoss: []
-};
-
 function randomQuestion(poolName) {
     // REMOVED: All the "if (room === #)" lines.
     
@@ -1358,15 +1354,9 @@ function playFinalBossMusic(){
         }
 
    const isBoss = diff.includes("Boss");
-   document.body.classList.toggle("boss-mode", isBoss);
+   document.getElementById("gameShell").classList.toggle("boss-mode", isBoss);
    const shell = document.getElementById("gameShell");
-   const wizard = document.getElementById("wizardBox");
-
-   // --- UI MODE SWITCH ---
-      if(shell){
-       shell.style.justifyContent = isBoss ? "center" : "flex-start";
-         }
-    
+   
     // 2. UI & Progress Updates
     gameBox.classList.toggle("boss-mode", isBoss);
     document.getElementById("progressFill").style.width = (room / 30 * 100) + "%";
@@ -1436,7 +1426,7 @@ function playFinalBossMusic(){
         currentQuestion = shuffleOptions(randomHard());
     }
     else{
-        currentQuestion = shuffleOptions(randomQuestion(diff));
+        currentQuestion = shuffleOptions(randomEasy());
     }
 
     // --- WIZARD LOGIC (RIGHT HERE) ---
