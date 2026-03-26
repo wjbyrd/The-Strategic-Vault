@@ -1708,24 +1708,41 @@ function handleVictory() {
         sfxVictory.currentTime = 0;
         sfxVictory.play();
     }
-    
+
     const totalTimeMs = Date.now() - startTime;
     const timeString = formatTime(totalTimeMs);
     const accuracy = Math.round((correctAnswers / totalAttempts) * 100);
     const verificationCode = "ARCH-" + Math.floor(1000 + Math.random() * 9000);
-    
+
+    // --- ARCHIVIST JUDGMENT ---
+    let archivistLine = "";
+    if(accuracy >= 90){
+        archivistLine = "You have mastered the labyrinth. Few reach this level of clarity.";
+    }
+    else if(accuracy >= 75){
+        archivistLine = "You see much… but not all. The deeper truths still elude you.";
+    }
+    else{
+        archivistLine = "You survived. But survival is not mastery. Return and try again.";
+    }
+
     const gameBox = document.getElementById("gameBox");
-    // FIXED: changed totalAttemps to totalAttempts below
+
     gameBox.innerHTML = `
         <div style="text-align:center; padding:30px;">
             <h1 class="victory" style="color:gold; text-shadow: 0 0 20px gold;">👑 CONQUEST COMPLETE 👑</h1>
-            
+
             <div style="margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid #374151;">
                 <p>👤 Adventurer: <strong>${username}</strong></p>
                 <p>🎯 Accuracy: <strong>${accuracy}%</strong> | 🔥 Best Streak: <strong>${maxStreak}</strong></p>
                 <p>⏱️ Time: <strong>${timeString}</strong> | 📝 Total Questions: <strong>${totalAttempts}</strong></p>
                 <p style="font-size: 0.8em; color: #9ca3af;">🔑 Verification Code: <span id="vCode">${verificationCode}</span></p>
             </div>
+
+            <p style="margin-top:15px; font-style:italic; color:#93c5fd; opacity:0; animation: fadeIn 1s ease forwards 0.5s;">
+                ${archivistLine}
+            </p>
+
             <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
                 <button id="shareBtn" onclick="copyResults()" style="background:#4ade80; color:black; font-weight:bold; padding:12px 24px; border:none; border-radius:6px; cursor:pointer;">
                     📋 Copy Results
