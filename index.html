@@ -1699,8 +1699,8 @@ function triggerBossShake() {
     }
 }
 
-    function generateCode(name, acc, streak, total){
-    let str = `${name}|${acc}|${streak}|${total}`;
+function generateCode(name, acc, streak, total){
+    let str = `${name}|${acc}|${streak}|${total}|ARCHIVE42`;
     let hash = 0;
 
     for(let i = 0; i < str.length; i++){
@@ -1709,7 +1709,7 @@ function triggerBossShake() {
     }
 
     return "ARCH-" + Math.abs(hash).toString(36).toUpperCase();
-}  
+} 
 
 function handleVictory() {
     bgMusic.pause();
