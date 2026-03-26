@@ -62,8 +62,8 @@ body {
 }
 
 #gameBox.boss-mode {
-    border: 2px solid #ef4444;
-    box-shadow: 0 0 50px rgba(239, 68, 68, 0.4), inset 0 0 20px rgba(239, 68, 68, 0.2);
+    border: 2px solid #60a5fa;
+    box-shadow: 0 0 40px rgba(96,165,250,0.4), inset 0 0 20px rgba(239, 68, 68, 0.2);
 }
 
 .hit { box-shadow: 0 0 60px #ef4444, inset 0 0 40px #7f1d1d !important; animation: hitshake 0.4s ease; }
@@ -1365,7 +1365,8 @@ function playFinalBossMusic(){
     const isBoss = diff.includes("Boss");
     
     // 2. UI & Progress Updates
-    gameBox.classList.toggle("boss-mode", isBoss);
+    document.getElementById("gameShell")
+    .classList.toggle("boss-mode", isBoss);
     document.getElementById("progressFill").style.width = (room / 30 * 100) + "%";
     document.getElementById("areaDisplay").innerText = `${getAreaName(room)} (${room}/30)`;
     document.getElementById("srAnnouncements").innerText = `Entering ${getAreaName(room)}. Room ${room} of 30.`;
