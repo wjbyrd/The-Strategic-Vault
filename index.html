@@ -449,7 +449,7 @@ let currentQuestion = null;
 let detourActive = false;
 let detourReturnRoom = null;
 let conceptMemory = {};
-let weakTags = {};
+let tagHistory = [];
 let lastTypes = [];
 let easyCycle = 0 ;
 let mediumCycle = 0;
@@ -470,6 +470,53 @@ let questionHistory = {
     mediumBoss: [],
     finalBoss: []
 };
+
+// =============================
+// ADAPTIVE ENGINE
+// =============================
+
+function weightedPick(pool){
+    let weightedPool = [];
+    pool.forEach(q => {
+        let weight = 1;
+        // Weakness boost
+        if(q.tag && conceptMemory[q.tag]){
+            weight += conceptMemory[q.tag];
+        }
+        // Coverage boost (if tag not seen recently)
+        let recentCount = tagHistory.filter(t => t === q.tag).length;
+        if(recentCount === 0){
+            weight += 2;
+        }
+        for(let i = 0; i < weight; i++){
+            weightedPool.push(q);
+        }
+    });
+    return weightedPool[Math.floor(Math.random() * weightedPool.length)];
+}
+
+function getAdaptiveQuestion(poolName){
+    let pool = questionBanks[poolName];
+    let recent = questionHistory[poolName].slice(-5);
+    let available = pool.filter(q => !recent.includes(q.id));
+    if(available.length === 0){
+        available = pool;
+    }
+    let picked = weightedPick(available);
+    // Track history
+    questionHistory[poolName].push(picked.id);
+    if(questionHistory[poolName].length > 10){
+        questionHistory[poolName].shift();
+    }
+    // Track tag exposure
+    if(picked.tag){
+        tagHistory.push(picked.tag);
+        if(tagHistory.length > 10){
+            tagHistory.shift();
+        }
+    }
+    return picked;
+}
 
 const TIMING = {
     normal: 1200,
@@ -788,109 +835,7 @@ game_theory:[
 {id:1505,q:"In repeated games, cooperation can occur because...",options:["Future punishment discourages cheating","Players become identical","Payoffs disappear","Strategies are fixed"],a:0,tag:"interpretation",type:"game_theory",feedback:"Future consequences can sustain cooperation."}
 ]
 };
-
-let easyTagCycle = 0;
-const easyTags = ["risk","insurance","game_theory"];
-
-let mediumTagCycle = 0;
-const mediumTags = ["risk","insurance","game_theory"];
- 
-const easyPools = {
-risk: {
-definition: questionBanks.easy.filter(q => q.tag === "risk" && q.type === "definition"),
-interpretation: questionBanks.easy.filter(q => q.tag === "risk" && q.type === "interpretation"),
-calculation: questionBanks.easy.filter(q => q.tag === "risk" && q.type === "calculation")
-},
-insurance: {
-definition: questionBanks.easy.filter(q => q.tag === "insurance" && q.type === "definition"),
-interpretation: questionBanks.easy.filter(q => q.tag === "insurance" && q.type === "interpretation"),
-calculation: questionBanks.easy.filter(q => q.tag === "insurance" && q.type === "calculation")
-},
-game_theory: {
-definition: questionBanks.easy.filter(q => q.tag === "game_theory" && q.type === "definition"),
-interpretation: questionBanks.easy.filter(q => q.tag === "game_theory" && q.type === "interpretation"),
-calculation: questionBanks.easy.filter(q => q.tag === "game_theory" && q.type === "calculation")
-}
-};
-  
-const mediumPools = {
-risk: {
-definition: questionBanks.medium.filter(q => q.tag === "risk" && q.type === "definition"),
-interpretation: questionBanks.medium.filter(q => q.tag === "risk" && q.type === "interpretation"),
-calculation: questionBanks.medium.filter(q => q.tag === "risk" && q.type === "calculation")
-},
-insurance: {
-definition: questionBanks.medium.filter(q => q.tag === "insurance" && q.type === "definition"),
-interpretation: questionBanks.medium.filter(q => q.tag === "insurance" && q.type === "interpretation"),
-calculation: questionBanks.medium.filter(q => q.tag === "insurance" && q.type === "calculation")
-},
-game_theory: {
-definition: questionBanks.medium.filter(q => q.tag === "game_theory" && q.type === "definition"),
-interpretation: questionBanks.medium.filter(q => q.tag === "game_theory" && q.type === "interpretation"),
-calculation: questionBanks.medium.filter(q => q.tag === "game_theory" && q.type === "calculation")
-}
-};
- 
-function randomEasy() {
-    let recent = questionHistory.easy.slice(-5);
-
-    let availableQuestions = questionBanks.easy.filter(q => !recent.includes(q.id));
-
-    if (availableQuestions.length === 0) {
-        availableQuestions = [...questionBanks.easy];
-    }
-
-    let randomIndex = Math.floor(Math.random() * availableQuestions.length);
-    let question = availableQuestions[randomIndex];
-
-    questionHistory.easy.push(question.id);
-    if (questionHistory.easy.length > 10) {
-        questionHistory.easy.shift();
-    }
-
-    return question;
-}
-
-function randomMedium() {
-    let recent = questionHistory.medium.slice(-5);
-
-    let availableQuestions = questionBanks.medium.filter(q => !recent.includes(q.id));
-
-    if (availableQuestions.length === 0) {
-        availableQuestions = [...questionBanks.medium];
-    }
-
-    let randomIndex = Math.floor(Math.random() * availableQuestions.length);
-    let question = availableQuestions[randomIndex];
-
-    questionHistory.medium.push(question.id);
-    if (questionHistory.medium.length > 10) {
-        questionHistory.medium.shift();
-    }
-
-    return question;
-}
-
-function randomHard() {
-    let recent = questionHistory.hard.slice(-5);
-
-    let availableQuestions = questionBanks.hard.filter(q => !recent.includes(q.id));
-
-    if (availableQuestions.length === 0) {
-        availableQuestions = [...questionBanks.hard];
-    }
-
-    let randomIndex = Math.floor(Math.random() * availableQuestions.length);
-    let question = availableQuestions[randomIndex];
-
-    questionHistory.hard.push(question.id);
-    if (questionHistory.hard.length > 10) {
-        questionHistory.hard.shift();
-    }
-
-    return question;
-}
-    
+   
 function shuffleOptions(question){
     let q = {
         q: question.q,
@@ -1411,25 +1356,36 @@ function playFinalBossMusic(){
         adjustedDiff = "medium";
     }
 
-    // --- QUESTION SELECTION ---
-    if(adjustedDiff === "calculation"){
-        const generator = pickCalcGenerator();
-        currentQuestion = shuffleOptions(generator());
-    }
-    else if(adjustedDiff === "easy"){
-        currentQuestion = shuffleOptions(randomEasy());
-    }
-    else if(adjustedDiff === "medium"){
-        currentQuestion = shuffleOptions(randomMedium());
-    }
-    else if(adjustedDiff === "hard"){
-        currentQuestion = shuffleOptions(randomHard());
-    }
-    else{
-        currentQuestion = shuffleOptions(randomEasy());
-    }
+// =============================
+// ADAPTIVE DIFFICULTY
+// =============================
 
-    // --- WIZARD LOGIC (RIGHT HERE) ---
+let adjustedDiff = diff;
+
+if(streak >= 6 && room < 25){
+    adjustedDiff = "hard";
+}
+else if(streak >= 3 && room < 20){
+    adjustedDiff = "medium";
+}
+
+// =============================
+// QUESTION SELECTION
+// =============================
+
+if(adjustedDiff === "calculation"){
+    const generator = pickCalcGenerator();
+    currentQuestion = shuffleOptions(generator());
+}
+else{
+    currentQuestion = shuffleOptions(
+        getAdaptiveQuestion(adjustedDiff)
+    );
+}
+        
+// =============================
+// --- WIZARD LOGIC ---
+// =============================
     if(!currentQuestion.type){
         currentQuestion.type = "interpretation";
     }
@@ -1474,6 +1430,10 @@ function displayQuestion() {
 }
     
 function answer(choice) {
+    // --- GLOBAL MEMORY DECAY ---
+    for(let tag in conceptMemory){
+    conceptMemory[tag] *= 0.95;
+    }
     totalAttempts++;
     const isBossRoom = (room === 10 || room === 20 || room === 30);
     const msgElement = document.getElementById("message");
@@ -1499,7 +1459,13 @@ function answer(choice) {
         streak++;
         if (streak > maxStreak) maxStreak = streak;
         handleStreakVisuals();
-
+    
+        // --- LEARNING: reduce weakness ---
+        if(currentQuestion.tag){
+            conceptMemory[currentQuestion.tag] =
+            (conceptMemory[currentQuestion.tag] || 0) * 0.7;
+        }
+        
        // --- BOSS HIT LOGIC ---
         if(isBossRoom){
         bossHealth--;
@@ -1564,19 +1530,13 @@ return;
         },100);
         streak = 0;
 
-// --- WEAK TAG TRACKING ---
     if(currentQuestion.tag){
-        weakTags[currentQuestion.tag] = (weakTags[currentQuestion.tag] || 0) + 1;
-    }
-        for(let tag in weakTags){
-            weakTags[tag] *= 0.9;
-        }
+    conceptMemory[currentQuestion.tag] = (conceptMemory[currentQuestion.tag] || 0) + 1;
+}
+
     // If question has a concept tag, trigger a reinforcement detour
     // --- Adaptive Concept Detour ---
-    if(!detourActive && currentQuestion.tag){
-    conceptMemory[currentQuestion.tag]++;
-        }
-    }
+   if(!detourActive &&currentQuestion.tag &&(conceptMemory[currentQuestion.tag] || 0) >= 2){
 
     let conceptPool = null;
 
@@ -1603,7 +1563,8 @@ return;
 
         displayQuestion();
         return;
-}
+        }
+       }
 
 // Normal failure handling
 document.getElementById("streakDisplay").innerText = "";
@@ -1613,7 +1574,8 @@ room = Math.max(1, room - (room % 10 === 0 ? 3 : (room >= 21 ? 2 : 1)));
 localStorage.setItem("gauntletRoom", room);
 alert(`Incorrect! You trip in the darkness and tumble back to Room ${room}.`);
 loadQuestion();
-    }
+}
+    
 // Helper for cleaner artifact logic
 function unlockArtifact(key) {
     const id = "vault" + key.charAt(0).toUpperCase() + key.slice(1);
