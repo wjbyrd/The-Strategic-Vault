@@ -694,6 +694,7 @@ easyBoss:[
 {id:201,q:"The Dice Tyrant snarls: 'You trust numbers… but do you understand them?' A gamble pays $100 with probability 0.4 and $0 otherwise. A player says its value is $100 because that is the payoff. What is the flaw?",options:["They ignored probabilities when determining the value of outcomes","They treated utility and monetary value as identical concepts","They assumed outcomes occur with equal likelihood","They focused only on the largest possible payoff"],a:0,feedback:"Expected value weights outcomes by probability. Ignoring probabilities leads to incorrect valuation."},
 {id:202,q:"The Dice Tyrant rolls again. A gamble pays $100 with probability 0.5 and $40 with probability 0.5. A student claims the expected value is $100 because it is the highest payoff. What is the correct expected value?",options:["$70 because outcomes must be weighted by their probabilities","$100 because the highest payoff determines value","$50 because only one outcome should be considered","$40 because lower outcomes reduce overall value"],a:0,feedback:"Expected value = (100×0.5)+(40×0.5)=50+20=70. Maximum payoff is irrelevant."},
 {id:203,q:"The Dice Tyrant leans closer: 'Two gambles. Same expected value. One is riskier.' A risk-neutral player chooses which?",options:["They are indifferent because only expected value determines choice","They prefer the riskier option due to higher variance","They prefer the safer option due to lower variance","They choose the option with more consistent outcomes"],a:0,feedback:"Risk-neutral players only care about expected value, not variance."}
+],
 mediumBoss:[
 {id:204,q:"The Underwriter whispers: 'You reject a fair gamble. Why?' A gamble has expected value $0, yet you decline it. Which explanation is correct?",options:["Expected utility is lower than the utility of a certain outcome due to diminishing marginal utility","Expected value must be negative once risk is considered","Variance does not affect decision making in this context","Probabilities must be miscalculated in the gamble"],a:0,feedback:"Risk-averse individuals reject fair gambles because utility is concave."},
 {id:205,q:"The Underwriter presents a contract. A student claims people buy insurance only when expected value is positive. What is the flaw?",options:["They ignore that decisions depend on expected utility rather than expected value","They assume probabilities are incorrectly calculated by insurers","They believe premiums always equal expected payouts","They confuse insurance demand with risk neutrality"],a:0,feedback:"Insurance decisions depend on utility, not just expected monetary value."},
@@ -812,7 +813,7 @@ hard:[
 {id:113, q:"Two players each choose strategies that are best responses to one another. What does this guarantee?",options:["A Nash equilibrium","A dominant strategy equilibrium","A Pareto efficient outcome","A mixed strategy outcome"],a:0,feedback:"A Nash equilibrium occurs when each player’s strategy is a best response to the other’s."},
 {id:114, q:"A policy eliminates all risk for individuals but reduces overall expected income. Why might individuals still prefer it?",options:["They maximize expected utility rather than expected value","They are risk loving","They ignore probabilities","They prefer lower income"],a:0,feedback:"Risk-averse individuals may accept lower expected income to eliminate uncertainty and increase utility."},
 {id:115, q:"In a repeated game, cooperation breaks down when players heavily discount the future. Why?",options:["Future punishment is not valuable enough to deter defection","Players become risk neutral","The payoff matrix changes","Strategies become dominant"],a:0,tag:"game_theory",type:"interpretation",feedback:"If players value the future less, punishment threats lose power, making defection more attractive.",}    
-{id:116, q:"A gamble pays $200 with probability 0.4 and $0 otherwise. A risk-averse individual rejects it. Why?",options:["The expected utility is lower than the utility of certainty","The expected value is negative","The probability is too low","The variance is zero"],a:0,tag:"risk",type:"calculation",feedback:"Even with positive expected value, risk-averse individuals may reject due to diminishing marginal utility."},'
+{id:116, q:"A gamble pays $200 with probability 0.4 and $0 otherwise. A risk-averse individual rejects it. Why?",options:["The expected utility is lower than the utility of certainty","The expected value is negative","The probability is too low","The variance is zero"],a:0,tag:"risk",type:"calculation",feedback:"Even with positive expected value, risk-averse individuals may reject due to diminishing marginal utility."},
 {id:117, q:"A risk-averse individual is offered two gambles with identical expected values, but one has higher variance. Which will they choose?",options:["The lower variance gamble","The higher variance gamble","They are indifferent","The gamble with higher probability"],a:0,tag:"risk",type:"interpretation",feedback:"Risk-averse individuals prefer lower variance when expected value is the same because utility is concave."},
 {id:118, q:"A firm lowers its price in response to a competitor’s price cut, even though profits fall for both. What concept explains this outcome?",options:["Strategic interdependence","Adverse selection","Diminishing returns","Moral hazard"],a:0,tag:"game_theory",type:"interpretation",feedback:"Firms react to each other’s decisions because payoffs depend on mutual actions."},
 {id:119, q:"An insurance market unravels completely as premiums rise and only the highest-risk individuals remain. What is this outcome called?",options:["Adverse selection death spiral","Moral hazard equilibrium","Pooling equilibrium","Risk neutrality"],a:0,tag:"insurance",type:"definition",feedback:"As low-risk individuals exit, premiums rise further, causing a collapse known as a death spiral."},
@@ -1263,29 +1264,6 @@ function pickCalcGenerator(){
     return calcBag.pop();
 }
 
-function weightedPick(pool){
-
-let weightedPool = [];
-
-pool.forEach(q => {
-
-let weight = 1;
-
-if(q.tag && conceptMemory[q.tag]){
-weight += conceptMemory[q.tag];
-}
-
-for(let i = 0; i < weight; i++){
-weightedPool.push(q);
-}
-
-});
-
-return weightedPool[Math.floor(Math.random()*weightedPool.length)];
-
-}
-  
-  
 function pickRandom(pool){
     if(!pool._remaining || pool._remaining.length === 0){
         pool._remaining = shuffle([...pool]);
@@ -1475,7 +1453,6 @@ function answer(choice) {
     if (choice === currentQuestion.a) {
         sfxCorrect.currentTime = 0;
         sfxCorrect.play().catch(()=>{});
-        wizardSpeak(getWizardFeedback("correct"));
         wizard.style.transform = "scale(1.1)";
         setTimeout(()=>{
         wizard.style.transform = "";
@@ -1784,7 +1761,12 @@ aContainer.innerHTML = `
         ${buttonLabel}
     </button>`;
     
-    document.getElementById("continueBtn").onclick = () => {
+document.getElementById("continueBtn").onclick = () => {
+    // --- RESET BOSS STATE (THIS IS THE FIX) ---
+    document.getElementById("gameShell").classList.remove("boss-mode");
+    document.getElementById("gameBox").classList.remove("boss-mode");
+    bossHealth = 3;
+
     if(bossRoom === 30){
         handleVictory();
     } else {
