@@ -1506,8 +1506,21 @@ function answer(choice) {
     const msgElement = document.getElementById("message");
     const wizard = document.getElementById("wizardImage");
     if (choice === currentQuestion.a) {
+        if(isBossRoom){
+        sfxCorrect.pause();
+        sfxCorrect.currentTime = 0;
+
+        sfxBossHit.pause();
+        sfxBossHit.currentTime = 0;
+        sfxBossHit.play().catch(()=>{});
+    } else {
+        sfxBossHit.pause();
+        sfxBossHit.currentTime = 0;
+
+        sfxCorrect.pause();
         sfxCorrect.currentTime = 0;
         sfxCorrect.play().catch(()=>{});
+    }
         wizardSpeak(getWizardFeedback("correct"));
         wizard.style.transform = "scale(1.1)";
         setTimeout(()=>{
@@ -1536,8 +1549,6 @@ function answer(choice) {
        // --- BOSS HIT LOGIC ---
         if(isBossRoom){
         bossHealth--;
-        sfxBossHit.currentTime = 0;
-        sfxBossHit.play().catch(()=>{});
 
         msgElement.innerHTML = `<span style='color:#f87171;font-weight:bold;'>⚔ HIT! Boss Health: ${bossHealth}/3</span>`;
 
