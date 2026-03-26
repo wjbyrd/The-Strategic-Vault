@@ -139,8 +139,8 @@ button:active {transform: scale(0.96);}
 /* Boss hit shake effect */
 .boss-shake {animation: bossShake 0.5s cubic-bezier(.36,.07,.19,.97) both;}
 .bossIcon { width: 96px; height: auto; display: block; margin: 0 auto 12px auto; animation: bossFloat 4s ease-in-out infinite; }
-.wardenGlow { filter: drop-shadow(0 0 14px rgba(96,165,250,.8)); }
-.decomposerGlow { filter: drop-shadow(0 0 14px rgba(168,85,247,.8)); }
+.tyrantGlow { filter: drop-shadow(0 0 14px rgba(96,165,250,.8)); }
+.underwriterGlow { filter: drop-shadow(0 0 14px rgba(168,85,247,.8)); }
 .finalBoss { filter: drop-shadow(0 0 18px rgba(239,68,68,.9)); }
 
 .torch { position: absolute; width: 70px; top: 30px; z-index: 10; animation: torchFlicker 3s infinite alternate; pointer-events: none; opacity: .95; filter: drop-shadow(0 0 12px rgba(255,180,80,.7)); display:none; }
@@ -452,21 +452,29 @@ let lastTypes = [];
 let easyCycle = 0 ;
 let mediumCycle = 0;
 let usedQuestions = {
-easy: [],
-medium: [],
-hard: [],
-easyBoss: [],
-mediumBoss: [],
-finalBoss: []
+    easy: [],
+    medium: [],
+    hard: [],
+    easyBoss: [],
+    mediumBoss: [],
+    finalBoss: []
 };
-let conceptMemory = {
-budget:0,
-demand:0,
-indifference:0,
-elasticity:0,
-equilibrium:0
+let questionHistory = {
+    easy: [],
+    medium: [],
+    hard: [],
+    calculation: [],
+    easyBoss: [],
+    mediumBoss: [],
+    finalBoss: []
 };
 
+const TIMING = {
+    normal: 1200,
+    boss: 1000,
+    detour: 1400
+};
+    
 const artifacts = {
 dice:{
 img:"dice_of_probability.png",
@@ -505,25 +513,7 @@ function startGame() {
     username = inputName;
     localStorage.setItem("gauntletUser", username);
 
-  questionHistory = {
-  easy: [], medium: [], hard: [], calculation: [],
-  easyBoss: [], mediumBoss: [], finalBoss: []
-  };
-
-  easyIndex = {
-  risk:{definition:0,interpretation:0,calculation:0},
-  insurance:{definition:0,interpretation:0,calculation:0},
-  game_theory:{definition:0,interpretation:0,calculation:0}
-  };
-
-  mediumIndex = JSON.parse(JSON.stringify(easyIndex));
-
-  easyCycle = 0;
-  mediumCycle = 0;
-  easyTagCycle = 0;
-  mediumTagCycle = 0;
-
-    // RESET GAME STATE
+ // RESET GAME STATE
     room = 1;
     bossHealth = 3;
     streak = 0;
@@ -536,6 +526,11 @@ function startGame() {
     localStorage.removeItem("vaultDice");
     localStorage.removeItem("vaultShield");
     localStorage.removeItem("vaultCore");
+
+    questionHistory = {
+    easy: [], medium: [], hard: [], calculation: [],
+    easyBoss: [], mediumBoss: [], finalBoss: []
+    };
     
     // Reveal the game and torches
     document.getElementById("startScreen").style.display = "none";
@@ -555,7 +550,7 @@ function startGame() {
         document.getElementById("vaultCore").classList.add("unlocked");
     }
   
-    // Start atmosphere and timer
+// Start atmosphere and timer
     bgMusic.play().catch(e => console.log("Audio started"));
     startTime = Date.now(); 
     loadQuestion();
@@ -657,8 +652,8 @@ mediumBoss:[
 {q:"Final judgment from the Underwriter. If insurance companies offered only fair insurance, what problem would most directly threaten their survival?",options:["Administrative costs exceeding premiums","Consumers becoming risk neutral","Demand for insurance disappearing","All risks becoming insurable"],a:0,feedback:"Even if premiums equal expected losses, insurers must cover administrative costs and profit margins, making purely fair insurance unsustainable."}
 ],
 finalBoss:[
-{q:"The Strategist of Eternity begins. In a one-shot Prisoner's Dilemma, both players choose to betray even though mutual cooperation is better. Why?",options:["Betrayal is a dominant strategy and each player best responds to the other","Players care about total welfare","Communication enforces cooperation","Random strategies dominate"],a:0,feedback:"In a one-shot game, each player’s best response is to betray regardless of what the other does, leading to a Nash equilibrium that is not socially optimal."},
-{q:"The Strategist advances. In a sequential game, Player A moves first and Player B responds after observing A’s choice. What solution concept rules out empty threats?",options:["Subgame perfect equilibrium","Dominant strategy equilibrium","Mixed strategy equilibrium","Pareto efficiency"],a:0,feedback:"Subgame perfect equilibrium requires strategies to be optimal in every subgame, eliminating non-credible threats."},
+{q:"The Convergence begins. In a one-shot Prisoner's Dilemma, both players choose to betray even though mutual cooperation is better. Why?",options:["Betrayal is a dominant strategy and each player best responds to the other","Players care about total welfare","Communication enforces cooperation","Random strategies dominate"],a:0,feedback:"In a one-shot game, each player’s best response is to betray regardless of what the other does, leading to a Nash equilibrium that is not socially optimal."},
+{q:"The Convergence advances. In a sequential game, Player A moves first and Player B responds after observing A’s choice. What solution concept rules out empty threats?",options:["Subgame perfect equilibrium","Dominant strategy equilibrium","Mixed strategy equilibrium","Pareto efficiency"],a:0,feedback:"Subgame perfect equilibrium requires strategies to be optimal in every subgame, eliminating non-credible threats."},
 {q:"Final judgment. A Prisoner's Dilemma is repeated indefinitely. Under what condition can cooperation be sustained?",options:["When the probability of future interaction is high enough","Only when players are risk neutral","Only in one-shot games","When players cannot observe each other"],a:0,feedback:"In repeated games, cooperation can emerge if players value future payoffs enough—meaning the probability of continuation is sufficiently high."}
 ],
     easy: [
@@ -795,21 +790,9 @@ game_theory:[
 let easyTagCycle = 0;
 const easyTags = ["risk","insurance","game_theory"];
 
-let easyIndex = {
-risk:{definition:0,interpretation:0,calculation:0},
-insurance:{definition:0,interpretation:0,calculation:0},
-game_theory:{definition:0,interpretation:0,calculation:0}
-};
-
 let mediumTagCycle = 0;
 const mediumTags = ["risk","insurance","game_theory"];
-
-let mediumIndex = {
-risk:{definition:0,interpretation:0,calculation:0},
-insurance:{definition:0,interpretation:0,calculation:0},
-game_theory:{definition:0,interpretation:0,calculation:0}
-};
-  
+ 
 const easyPools = {
 risk: {
 definition: questionBanks.easy.filter(q => q.tag === "risk" && q.type === "definition"),
@@ -847,24 +830,16 @@ calculation: questionBanks.medium.filter(q => q.tag === "game_theory" && q.type 
 };
  
 function randomEasy() {
-    const types = ["definition","interpretation","calculation"];
-    const type = types[Math.floor(Math.random() * types.length)];
-    const tag = easyTags[Math.floor(Math.random() * easyTags.length)];
+    let recent = questionHistory.easy.slice(-5);
 
-    let pool = easyPools[tag][type] || [];
-    const recent = questionHistory.easy.slice(-3);
-    let workingPool = pool.filter(q => !recent.includes(q.id));
+    let availableQuestions = questionBanks.easy.filter(q => !recent.includes(q.id));
 
-    if (workingPool.length === 0) {
-        workingPool = pool;
+    if (availableQuestions.length === 0) {
+        availableQuestions = [...questionBanks.easy];
     }
 
-    if (workingPool.length === 0) {
-        console.warn("Missing easy pool:", tag, type);
-        return null;
-    }
-
-    const question = workingPool[Math.floor(Math.random() * workingPool.length)];
+    let randomIndex = Math.floor(Math.random() * availableQuestions.length);
+    let question = availableQuestions[randomIndex];
 
     questionHistory.easy.push(question.id);
     if (questionHistory.easy.length > 10) {
@@ -875,24 +850,16 @@ function randomEasy() {
 }
 
 function randomMedium() {
-    const types = ["definition","interpretation","calculation"];
-    const type = types[Math.floor(Math.random() * types.length)];
-    const tag = mediumTags[Math.floor(Math.random() * mediumTags.length)];
+    let recent = questionHistory.medium.slice(-5);
 
-    let pool = mediumPools[tag][type] || [];
-    const recent = questionHistory.medium.slice(-3);
-    let workingPool = pool.filter(q => !recent.includes(q.id));
+    let availableQuestions = questionBanks.medium.filter(q => !recent.includes(q.id));
 
-    if (workingPool.length === 0) {
-        workingPool = pool;
+    if (availableQuestions.length === 0) {
+        availableQuestions = [...questionBanks.medium];
     }
 
-    if (workingPool.length === 0) {
-        console.warn("Missing medium pool:", tag, type);
-        return null;
-    }
-
-    const question = workingPool[Math.floor(Math.random() * workingPool.length)];
+    let randomIndex = Math.floor(Math.random() * availableQuestions.length);
+    let question = availableQuestions[randomIndex];
 
     questionHistory.medium.push(question.id);
     if (questionHistory.medium.length > 10) {
@@ -901,28 +868,48 @@ function randomMedium() {
 
     return question;
 }
-  
-function shuffleOptions(question){
 
-let q = {
-    q: question.q,
-    options: [...question.options],
-    a: question.a,
-    feedback: question.feedback,
-    hint: question.hint,
-    tag: question.tag
-};
+function randomHard() {
+    let recent = questionHistory.hard.slice(-5);
 
-let correct = q.options[q.a];
+    let availableQuestions = questionBanks.hard.filter(q => !recent.includes(q.id));
 
-for(let i=q.options.length-1;i>0;i--){
-let j=Math.floor(Math.random()*(i+1));
-[q.options[i],q.options[j]]=[q.options[j],q.options[i]];
+    if (availableQuestions.length === 0) {
+        availableQuestions = [...questionBanks.hard];
+    }
+
+    let randomIndex = Math.floor(Math.random() * availableQuestions.length);
+    let question = availableQuestions[randomIndex];
+
+    questionHistory.hard.push(question.id);
+    if (questionHistory.hard.length > 10) {
+        questionHistory.hard.shift();
+    }
+
+    return question;
 }
+    
+function shuffleOptions(question){
+    let q = {
+        q: question.q,
+        options: [...question.options],
+        a: question.a,
+        feedback: question.feedback,
+        hint: question.hint,
+        tag: question.tag,
+        type: question.type
+    };
 
-q.a = q.options.indexOf(correct);
+    let correct = q.options[q.a];
 
-return q;
+    for(let i = q.options.length - 1; i > 0; i--){
+        let j = Math.floor(Math.random() * (i + 1));
+        [q.options[i], q.options[j]] = [q.options[j], q.options[i]];
+    }
+
+    q.a = q.options.indexOf(correct);
+
+    return q;
 }
     
 function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
@@ -1230,10 +1217,11 @@ function randomQuestion(poolName) {
 
     let question = filtered[Math.floor(Math.random() * filtered.length)];
 
-    // Track for repetition prevention
-    usedQuestions[poolName].push(question.id);
-    lastTypes.push(question.type);
-    if (lastTypes.length > 3) lastTypes.shift();
+// Track types
+lastTypes.push(question.type)
+if(lastTypes.length > 3){
+lastTypes.shift()
+}
 
     return question;
 }
@@ -1309,6 +1297,7 @@ return weightedPool[Math.floor(Math.random()*weightedPool.length)];
 
 }
   
+  
 function pickRandom(pool){
     if(!pool._remaining || pool._remaining.length === 0){
         pool._remaining = shuffle([...pool]);
@@ -1348,6 +1337,7 @@ function playFinalBossMusic(){
   function loadQuestion() {
     updateMazeTrack();
     const questionElement = document.getElementById("question");
+    const msgElement = document.getElementById("message");
     const gameBox = document.getElementById("gameBox");
     const bossMsg = document.getElementById("bossMessage");
 
@@ -1356,17 +1346,29 @@ function playFinalBossMusic(){
     // 1. Determine Difficulty and Boss Status
     let diff = (room <= 9) ? "easy" : (room === 10) ? "easyBoss" : (room <= 19) ? "medium" : (room === 20) ? "mediumBoss" : (room <= 25) ? "hard" : (room <= 29) ? "calculation" : "finalBoss";
     
-    if (diff.includes("Boss")) {
+    // --- MUSIC CONTROL ---
+    if(diff === "finalBoss"){
+        playFinalBossMusic();
+        }
+    else if(diff.includes("Boss")){
         playBossMusic();
-    } else {
+        }
+    else{
         playExplorationMusic();
-    }
+        }
 
-    const isBoss = diff.includes("Boss");
+   const isBoss = diff.includes("Boss");
+   document.body.classList.toggle("boss-mode", isBoss);
+   const shell = document.getElementById("gameShell");
+   const wizard = document.getElementById("wizardBox");
+
+   // --- UI MODE SWITCH ---
+      if(shell){
+       shell.style.justifyContent = isBoss ? "center" : "flex-start";
+         }
     
     // 2. UI & Progress Updates
-    document.getElementById("gameShell")
-    .classList.toggle("boss-mode", isBoss);
+    gameBox.classList.toggle("boss-mode", isBoss);
     document.getElementById("progressFill").style.width = (room / 30 * 100) + "%";
     document.getElementById("areaDisplay").innerText = `${getAreaName(room)} (${room}/30)`;
     document.getElementById("srAnnouncements").innerText = `Entering ${getAreaName(room)}. Room ${room} of 30.`;
@@ -1374,99 +1376,100 @@ function playFinalBossMusic(){
     // 3. Select the Question
     if (isBoss) {
         if (bossHealth === 3) {
-            const pool = questionBanks[diff].map(q => ({
-                ...q,
-                options: [...q.options]
-            }));
-            bossPool = shuffle(pool);
+        bossPool = [...questionBanks[diff]]; // ← NO SHUFFLE
         }
 
-        let index = 3 - bossHealth;
-        index = Math.max(0, Math.min(index, bossPool.length - 1));
-
-        currentQuestion = shuffleOptions(bossPool[index]);
-
-        let bTitle = room === 10 ? "THE DICE TYRANT" : room === 20 ? "THE UNDERWRITER OF FATE" : "THE CONVERGENCE";
-        let bColor = room === 10 ? "#fbbf24" : room === 20 ? "#a855f7" : "#ef4444";
+        currentQuestion = shuffleOptions(bossPool[3 - bossHealth]);
         
-        document.getElementById("srAnnouncements").innerText = `Boss encounter. ${bTitle}. Prepare yourself`;
+        let bTitle = room === 10 ? "DICE TYRANT" : room === 20 ? "UNDERWRITER OF FATE" : "THE CONVERGENCE";
+        let bColor = room === 10 ? "#fbbf24" : room === 20 ? "#a855f7" : "#ef4444";
+        document.getElementById("srAnnouncements").innerText =`Boss encounter. ${bTitle}. Prepare yourself`;
         bossMsg.innerText = "⚠ BOSS ENCOUNTER ⚠";
         bossMsg.style.color = bColor;
         gameBox.style.setProperty('--bossColor', bColor);
+        let bossImage = "";
+        let bossClass = "";
 
-        let bossImage = room === 10 ? "tyrant.png" : room === 20 ? "underwriter.png" : "strategist.png";
-        let bossClass = room === 10 ? "tyrantGlow" : room === 20 ? "underwriterGlow" : "finalBoss";
-
-        questionElement.innerHTML = `
-            <img src="${bossImage}" class="bossIcon ${bossClass}">
-            <span class="boss-title" style="color:${bColor}">${bTitle}</span>
-            <div class="boss-q" style="--bossColor:${bColor}">
-                ${currentQuestion.q}
-            </div>`;
-    } else {
-        // --- 1. SPECIAL ROOMS ---
-        if(room === 18) currentQuestion = shuffleOptions(getRiskMedium());
-        else if(room === 19) currentQuestion = shuffleOptions(getInsuranceMedium());
-        else if(room === 26) currentQuestion = shuffleOptions(getStrategicDominant());
-        else if(room === 27) currentQuestion = shuffleOptions(getStrategicNash());
-        else if(room === 28) currentQuestion = shuffleOptions(getStrategicBestResponse());
-        else if(room === 29) currentQuestion = shuffleOptions(getStrategicCooperation());
-
-        // --- 2. NORMAL FLOW ---
-        else if(diff === "easy") currentQuestion = shuffleOptions(randomEasy());
-        else if(diff === "medium") currentQuestion = shuffleOptions(randomMedium());
-        else if(diff === "hard") currentQuestion = shuffleOptions(randomQuestion("hard"));
-        else if(diff === "calculation") {
-            const generator = pickCalcGenerator();
-            currentQuestion = shuffleOptions(generator());
-        }
-
-        // --- STREAK ADAPTIVE LOGIC ---
-        let adjustedDiff = diff;
-
-        if(streak >= 5 && room < 25){
-            adjustedDiff = "hard";
-        }
-        else if(streak >= 3 && room < 20){
-            adjustedDiff = "medium";
-        }
-        
-         // --- WIZARD LOGIC (RIGHT HERE) ---
-            if(!currentQuestion.type){
-            currentQuestion.type = "interpretation";
-            }
-
-            const wizardText = getWizardLine(currentQuestion.type);
-          wizardSpeak(wizardText);
-
-        // --- UI for Normal Rooms ---
-        bossMsg.innerText = (room === 9 || room === 19 || room === 29)
-            ? "⚠️ DANGER: BOSS DETECTED IN NEXT ROOM ⚠️"
-            : "";
-        bossMsg.style.color = "#ef4444";
-        questionElement.innerText = currentQuestion.q;
+    if(room === 10){
+    bossImage = "tyrant.png";
+    bossClass = "tyrantGlow";
+    }
+    else if(room === 20){
+    bossImage = "underwriter.png";
+    bossClass = "underwriterGlow";
+    }
+    else{
+    bossImage = "strategist.png";
+    bossClass = "finalBoss";
     }
 
-    // --- 4. FINAL EXECUTION (Shared by Boss and Normal) ---
-        if (!currentQuestion) {
-            console.error("No question generated");
-        return;
-        }
+    questionElement.innerHTML =
+    `<img src="${bossImage}" class="bossIcon ${bossClass}">
+    <span class="boss-title" style="color:${bColor}">${bTitle}</span>
+    <div class="boss-q" style="--bossColor:${bColor}">
+    ${currentQuestion.q}
+    </div>`;
+   } else {
 
-    // Update Hints and Draw Buttons
+    // --- STREAK ADAPTIVE LOGIC ---
+    let adjustedDiff = diff;
+
+    if(streak >= 5 && room < 25){
+        adjustedDiff = "hard";
+    }
+    else if(streak >= 3 && room < 20){
+        adjustedDiff = "medium";
+    }
+
+    // --- QUESTION SELECTION ---
+    if(adjustedDiff === "calculation"){
+        const generator = pickCalcGenerator();
+        currentQuestion = shuffleOptions(generator());
+    }
+    else if(adjustedDiff === "easy"){
+        currentQuestion = shuffleOptions(randomEasy());
+    }
+    else if(adjustedDiff === "medium"){
+        currentQuestion = shuffleOptions(randomMedium());
+    }
+    else if(adjustedDiff === "hard"){
+        currentQuestion = shuffleOptions(randomHard());
+    }
+    else{
+        currentQuestion = shuffleOptions(randomQuestion(diff));
+    }
+
+    // --- WIZARD LOGIC (RIGHT HERE) ---
+    if(!currentQuestion.type){
+        currentQuestion.type = "interpretation";
+    }
+
+    const wizardText = getWizardLine(currentQuestion.type);
+    wizardSpeak(wizardText);
+
+    // --- UI ---
+    bossMsg.innerText = (room === 9 || room === 19 || room === 29)
+        ? "⚠️ DANGER: BOSS DETECTED IN NEXT ROOM ⚠️"
+        : "";
+    bossMsg.style.color = "#ef4444";
+
+    questionElement.innerHTML = `
+        <div>${currentQuestion.q}</div>
+    `;
+}
+    // 4. Update Hints and Draw Buttons
     document.getElementById("formulaHint").innerText = currentQuestion.hint ? "💡 Hint: " + currentQuestion.hint : "";
-    
-    // This call is now OUTSIDE the 'else' block
     displayQuestion();
-
-    // Final Boss Entrance Shake
-    if (diff === "finalBoss") {
-        setTimeout(() => {
-            triggerBossShake();
-            setTimeout(triggerBossShake, 450);
-        }, 200);
+    
+  // --- Final Boss Entrance Shake ---
+    if(diff === "finalBoss"){
+        setTimeout(()=>{
+        triggerBossShake();
+        setTimeout(triggerBossShake,450);
+        },200);
     }
 }
+    
 function displayQuestion() {
     const optionsElement = document.getElementById("answers");
     optionsElement.innerHTML = "";
