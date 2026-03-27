@@ -531,82 +531,9 @@ Subtle > excessive.
 
 /* General UI entrance animation */    
 @keyframes fadeIn {from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-   
+    
 /* =========================================
-   10. RESPONSIVE DESIGN — MOBILE ADJUSTMENTS
-=========================================
-
-Applies layout changes for smaller screens (≤ 600px).
-
-Ensures:
-- maze tracker stays visible
-- game content fits without overflow
-- answer buttons stack vertically
-
------------------------------------------
-SAFE TO EDIT:
-- sizes (maze-box, scaling)
-- button layout (flex behavior)
-- scale amount for gameBox
-
------------------------------------------
-USE CAUTION:
-- removing transform scaling may cause overflow
-- changing button flex may break readability
-
------------------------------------------
-DO NOT REMOVE:
-This section is required for mobile usability.
-
-Without it:
-- layout will overflow screen
-- buttons may be cut off
-- UI becomes hard to use on phones
-
------------------------------------------
-TIP:
-Test changes on both:
-- desktop (full width)
-- mobile (narrow screen)
-
-This controls responsiveness, not game logic.
-========================================= */
-@media (max-width: 600px) {
-    #gameShell {
-        padding: 8px;
-        gap: 10px;
-    }
-
-    .main-panel {
-        flex-direction: column; /* Wizard moves above the GameBox */
-        align-items: center;
-    }
-
-    #wizardBox {
-        flex-direction: row; /* Horizontal layout for wizard on mobile to save vertical space */
-        width: 100%;
-        min-width: 0;
-        min-height: 80px;
-        height: auto;
-        padding: 8px;
-    }
-
-    #wizardImage {
-        width: 60px; /* Smaller wizard image to save space */
-    }
-
-    #question {
-        font-size: 1.2rem;
-        line-height: 1.3;
-    }
-
-    .artifactSlot img {
-        width: 35px; /* Smaller icons in the vault */
-    }
-}
-   
-/* =========================================
-11. PANEL LAYOUT SYSTEM — SAFE TO CUSTOMIZE (WITH LIMITS)
+10. PANEL LAYOUT SYSTEM — SAFE TO CUSTOMIZE (WITH LIMITS)
 =========================================
 
 Controls the structural layout of the game UI:
@@ -763,7 +690,7 @@ This controls layout — not game logic.
 } 
 
 /* =========================================
-   12. BOSS MODE (UI STATE OVERRIDES) — DO NOT MODIFY STRUCTURE
+   11. BOSS MODE (UI STATE OVERRIDES) — DO NOT MODIFY STRUCTURE
 =========================================
 Applies layout changes during boss encounters.
 Triggered by adding the "boss-mode" class via JavaScript.
@@ -804,6 +731,80 @@ Keep layout clean and centered.
 /* Center layout when wizard is removed */
 .boss-mode #gameShell{
     justify-content:center;
+}
+
+/* =========================================
+   12. RESPONSIVE DESIGN — MOBILE ADJUSTMENTS
+=========================================
+
+Applies layout changes for smaller screens (≤ 600px).
+
+Ensures:
+- maze tracker stays visible
+- game content fits without overflow
+- answer buttons stack vertically
+
+-----------------------------------------
+SAFE TO EDIT:
+- sizes (maze-box, scaling)
+- button layout (flex behavior)
+- scale amount for gameBox
+
+-----------------------------------------
+USE CAUTION:
+- removing transform scaling may cause overflow
+- changing button flex may break readability
+
+-----------------------------------------
+DO NOT REMOVE:
+This section is required for mobile usability.
+
+Without it:
+- layout will overflow screen
+- buttons may be cut off
+- UI becomes hard to use on phones
+
+-----------------------------------------
+TIP:
+Test changes on both:
+- desktop (full width)
+- mobile (narrow screen)
+
+This controls responsiveness, not game logic.
+========================================= */
+@media (max-width: 600px) {
+    #gameShell {
+        padding: 8px;
+        gap: 10px;
+    }
+
+    .main-panel {
+        flex-direction: column; /* Wizard moves above the GameBox */
+        align-items: center;
+    }
+
+    #wizardBox {
+        flex-direction: row; /* Horizontal layout for wizard on mobile to save vertical space */
+        width: 100%;
+        max-width: 260px;
+        min-height: 80px;
+        margin-bottom: 10px;
+        height: auto;
+        padding: 8px;
+    }
+
+    #wizardImage {
+        width: 60px; /* Smaller wizard image to save space */
+    }
+
+    #question {
+        font-size: 1.2rem;
+        line-height: 1.3;
+    }
+
+    .artifactSlot img {
+        width: 35px; /* Smaller icons in the vault */
+    }
 }
    
 </style>
