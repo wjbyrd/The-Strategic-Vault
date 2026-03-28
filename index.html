@@ -920,9 +920,9 @@ Respect structure strictly.
             <p id="bossMessage"></p>
             <div id="questionContainer">
              <p id="question"></p>
-          <div id="formulaHint" class="hint-box"></div>
              <p class="question-directive"></p>
-         </div>
+          <div id="formulaHint" class="hint-box"></div>
+           </div>
             <div id="answers"></div>
             <p id="message"></p>
             <!-- Artifact reward popup (triggered after boss victories) -->
@@ -2406,10 +2406,10 @@ else{
         : "";
     bossMsg.style.color = "#ef4444";
 
-    questionElement.innerHTML = `
-        <div>${currentQuestion.q}</div>
-    `;
-   document.querySelector(".question-directive").textContent = getWizardLine(currentQuestion.type);
+      questionElement.innerHTML = `
+       <div>${currentQuestion.q}</div>
+      `;
+      msgElement.innerHTML = wizardText;
     }
     
     // 4. Update Hints and Draw Buttons
