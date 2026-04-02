@@ -2543,36 +2543,46 @@ if (isBoss) {
 
     if (bossHealth === 3) {
 
-        let pool = [...questionBanks[diff]];
+        // ✅ STEP 1: grab correct boss pool
+        let pool = diff === "easy" ? easyBoss
+                  : diff === "medium" ? mediumBoss
+                  : finalBoss;
 
         let entries = Object.entries(conceptMemory || {});
         let chosenTag = null;
 
         if (entries.length > 0) {
 
-            let maxWeakness = Math.max(...entries.map(e => e[1]));
+            let sorted = [...entries].sort((a,b)=> b[1]-a[1]); // highest weakness first
+            let maxWeakness = sorted[0][1];
 
             if (maxWeakness < 1) {
-                // no weakness → target strongest
-                chosenTag = entries.sort((a,b)=> a[1]-b[1])[0][0];
+             // randomly pick ANY concept to keep pressure
+             let tags = entries.map(e => e[0]);
+             chosenTag = tags[Math.floor(Math.random() * tags.length)];
             } else {
-                // normal → target weakest
-                chosenTag = entries.sort((a,b)=> b[1]-a[1])[0][0];
+                // 🎯 target weakest
+                chosenTag = sorted[0][0];
             }
         }
 
-        // --- BUILD BOSS SEQUENCE ---
+        // ✅ STEP 2: filter boss questions by that tag
         bossPool = chosenTag
-            ? pool.filter(q => q.tag === chosenTag)
-            : [];
+    ? pool.filter(q => q.tag === chosenTag)
+    : [];
 
-        // --- SAFETY FALLBACK ---
-        if (bossPool.length !== 3) {
+        // ✅ STEP 3: guarantee 3 questions
+        if (bossPool.length >= 3) {
+            bossPool = bossPool
+             .sort((a,b)=> a.id - b.id) // ensures scaffold order
+             .slice(0,3);
+        } else {
+            // fallback: just take any 3 from pool (rare)
             bossPool = pool.slice(0,3);
         }
     }
 
-        currentQuestion = shuffleOptions(bossPool[3 - bossHealth]);
+    currentQuestion = shuffleOptions(bossPool[3 - bossHealth]);
         
         let bTitle = room === 10 ? "DICE TYRANT" : room === 20 ? "UNDERWRITER OF FATE" : "THE CONVERGENCE";
         let bColor = room === 10 ? "#7dd3fc" : room === 20 ? "#38bdf8" : "#0ea5e9";
