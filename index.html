@@ -2544,8 +2544,8 @@ if (isBoss) {
     if (bossHealth === 3) {
 
         // ✅ STEP 1: grab correct boss pool
-        let pool = diff === "easy" ? easyBoss
-                  : diff === "medium" ? mediumBoss
+        let pool = diff === "easyBoss" ? easyBoss
+                  : diff === "mediumBoss" ? mediumBoss
                   : finalBoss;
 
         let entries = Object.entries(conceptMemory || {});
@@ -2567,9 +2567,9 @@ if (isBoss) {
         }
 
         // ✅ STEP 2: filter boss questions by that tag
-        bossPool = chosenTag
-    ? pool.filter(q => q.tag === chosenTag)
-    : [];
+         bossPool = chosenTag
+          ? pool.filter(q => q.tag === chosenTag)
+          : pool;
 
         // ✅ STEP 3: guarantee 3 questions
         if (bossPool.length >= 3) {
