@@ -2520,6 +2520,8 @@ function loadQuestion() {
              : (room <= 29) ? "calculation"
              : "finalBoss";
 
+const isBoss = diff.includes("Boss");
+   
 // Only reset health if the bossPool is currently empty (meaning a new encounter)
 if (isBoss && (!bossPool || bossPool.length === 0)) {
     bossHealth = 3;
@@ -2536,7 +2538,6 @@ if (isBoss && (!bossPool || bossPool.length === 0)) {
         playExplorationMusic();
         }
 
-    const isBoss = diff.includes("Boss");
     const shell = document.getElementById("gameShell");
 
     // SINGLE SOURCE OF TRUTH
