@@ -261,6 +261,21 @@ You can restyle it completely—just keep structure intact.
 /* Autosave indicator — positioned relative to gameBox */
 #autosave {position: absolute;top: 15px;right: 15px;font-size: 11px;opacity: 0.6;font-style: italic;color: rgba(125,211,252,0.7);}
 
+/* Adds a graph box for questions with graphs */
+#questionImageBox{
+  margin: 0 auto 12px auto;
+  text-align: center;
+  display: none;
+}
+
+#questionImageBox img{
+  max-width: 100%;
+  width: 420px;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(255,255,255,0.08);
+}
+
 /* =========================================
    3. TEXT & TYPOGRAPHY SYSTEM — SAFE TO CUSTOMIZE
 =========================================
@@ -1076,6 +1091,7 @@ Respect structure strictly.
             <div id="streakDisplay"></div>
             <p id="bossMessage"></p>
             <div id="questionContainer">
+			<div id="questionImageBox"></div>
              <p id="question"></p>
              <p id="message"></p>
           <div id="formulaHint" class="hint-box"></div>
@@ -1822,8 +1838,15 @@ hard:[
 {id:128, q:"A player randomizes strategies in equilibrium to prevent exploitation. What must be true about the opponent’s payoffs?",options:["They are indifferent between actions","They are maximized","They are minimized","They are constant"],a:0,tag:"game_theory",type:"interpretation",feedback:"Randomization ensures opponents cannot gain by switching strategies, making them indifferent."},
 {id:129, q:"A gamble has a positive expected value, but a risk-averse individual rejects it repeatedly. What does this imply about marginal utility?",options:["It is diminishing","It is constant","It is increasing","It is zero"],a:0,tag:"risk",type:"interpretation",feedback:"Diminishing marginal utility causes individuals to value losses more heavily than equivalent gains."},
 {id:130, q:"A firm commits to high output capacity before entry occurs. What strategic effect does this create?",options:["It deters entry by making aggressive pricing credible","It guarantees profits","It reduces costs","It eliminates uncertainty"],a:0,tag:"game_theory",type:"interpretation",feedback:"Capacity expansion signals a credible threat to compete aggressively if entry occurs."},
-{id:131, q:"An insurance policy includes a deductible, requiring the insured to bear some cost. What problem does this help mitigate?",options:["Moral hazard","Adverse selection","Risk aversion","Strategic commitment"],a:0,tag:"insurance",type:"interpretation",feedback:"Deductibles reduce moral hazard by ensuring individuals retain some financial responsibility."}
-]
+{id:131, q:"An insurance policy includes a deductible, requiring the insured to bear some cost. What problem does this help mitigate?",options:["Moral hazard","Adverse selection","Risk aversion","Strategic commitment"],a:0,tag:"insurance",type:"interpretation",feedback:"Deductibles reduce moral hazard by ensuring individuals retain some financial responsibility."},
+{id:132, q: "Refer to the utility graph. Suppose an individual with current wealth of $1200 faces a 50/50 gamble: if they win, wealth rises to $1500; if they lose, wealth falls to $900. What is the expected utility of taking the gamble?",
+  options: ["45 utils", "55 utils", "60 utils", "74 utils"],  a: 1,  tag: "risk",  type: "calculation",  image: "utility_wealth.png",  feedback: "Expected utility is the average of utility at the two possible outcomes: (36 + 74) / 2 = 55."},
+{id:133, q: "Refer to the utility graph. Suppose an individual with current wealth of $1200 faces a 50/50 gamble: if they win, wealth rises to $1500; if they lose, wealth falls to $900. What is the certainty equivalent of this gamble?",
+  options: ["$1000", "$1100", "$1200", "$1300"],a: 1,  tag: "risk",  type: "interpretation",  image: "utility_wealth.png",  feedback: "The certainty equivalent is the level of wealth that gives the same utility as the gamble’s expected utility. Since expected utility is 55, the certainty equivalent is $1100."},
+{id:134,  q: "Refer to the utility graph. Suppose an individual with current wealth of $1200 faces a 50/50 gamble: if they win, wealth rises to $1500; if they lose, wealth falls to $900. What is the maximum amount this individual would be willing to pay to avoid the gamble?",
+  options: ["$50", "$100", "$150", "$200"],  a: 1,  tag: "risk",  type: "calculation",  image: "utility_wealth.png",  feedback: "The maximum insurance premium equals the risk premium: current wealth minus certainty equivalent. That is $1200 - $1100 = $100."
+}
+],
 };
 
 easyConceptPools = {
@@ -2514,8 +2537,12 @@ function loadQuestion() {
     const msgElement = document.getElementById("message");
     const gameBox = document.getElementById("gameBox");
     const bossMsg = document.getElementById("bossMessage");
+	const imageBox = document.getElementById("questionImageBox");
 
     document.getElementById("artifactDrop").style.display = "none";
+
+	imageBox.innerHTML = "";
+	imageBox.style.display = "none";
 
     // 1. Determine Difficulty and Boss Status
     let diff = (room <= 9) ? "easy"
@@ -2551,7 +2578,6 @@ if (isBoss && (!bossPool || bossPool.length === 0)) {
     gameBox.classList.toggle("boss-mode", isBoss);
    
     // 2. UI & Progress Updates
-    gameBox.classList.toggle("boss-mode", isBoss);
     document.getElementById("progressFill").style.width = (room / 30 * 100) + "%";
     document.getElementById("areaDisplay").innerText = `${getAreaName(room)} (${room}/30)`;
     document.getElementById("srAnnouncements").innerText = `Entering ${getAreaName(room)}. Room ${room} of 30.`;
@@ -2580,6 +2606,11 @@ if (isBoss && (!bossPool || bossPool.length === 0)) {
 
         // 2. Select the specific question based on boss health
         currentQuestion = shuffleOptions(bossPool[3 - bossHealth]);
+
+		if(currentQuestion.image){
+   		imageBox.innerHTML = `<img src="${currentQuestion.image}" alt="Question graph">`;
+   		imageBox.style.display = "block";
+		}
 
         // 3. Boss Identity UI (Logic moved ABOVE the return)
         let bTitle = room === 10 ? "DICE TYRANT" : room === 20 ? "UNDERWRITER OF FATE" : "THE CONVERGENCE";
@@ -2658,6 +2689,11 @@ else{
     currentQuestion = shuffleOptions(
         getAdaptiveQuestion(adjustedDiff)
     );
+}
+
+if(currentQuestion.image){
+    imageBox.innerHTML = `<img src="${currentQuestion.image}" alt="Question graph">`;
+    imageBox.style.display = "block";
 }
         
 // =============================
