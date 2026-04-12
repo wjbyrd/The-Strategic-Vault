@@ -2585,7 +2585,7 @@ if (isBoss && (!bossPool || bossPool.length === 0)) {
     document.getElementById("areaDisplay").innerText = `${getAreaName(room)} (${room}/30)`;
     document.getElementById("srAnnouncements").innerText = `Entering ${getAreaName(room)}. Room ${room} of 30.`;
 
-// 3. Select the Question
+	// 3. Select the Question
     if (isBoss) {
         // 1. If it's a new fight (Health 3), decide the "Theme" of the boss
         if (bossHealth === 3 || !bossPool || bossPool.length === 0) {
@@ -2618,7 +2618,8 @@ if (isBoss && (!bossPool || bossPool.length === 0)) {
         // 3. Boss Identity UI (Logic moved ABOVE the return)
         let bTitle = room === 10 ? "DICE TYRANT" : room === 20 ? "UNDERWRITER OF FATE" : "THE CONVERGENCE";
         let bColor = room === 10 ? "#7dd3fc" : room === 20 ? "#38bdf8" : "#0ea5e9";
-        
+
+		document.getElementById("srAnnouncements").innerText =`Boss encounter. ${bTitle}. Prepare yourself`;
         bossMsg.innerText = "⚠ BOSS ENCOUNTER ⚠";
         bossMsg.style.color = bColor;
         gameBox.style.setProperty('--bossColor', bColor);
@@ -3259,7 +3260,7 @@ if (bossRoom === 10) {
     let nextAction = bossRoom === 30
     ? "handleVictory()"
     : "room++; localStorage.setItem('gauntletRoom', room); loadQuestion();";
-    let buttonLabel = bossRoom === 30 ? "FINALIZE THE ARCHIVE CONQUEST →" : `CONTINUE TO ROOM ${bossRoom + 1} →`;
+    let buttonLabel = bossRoom === 30 ? "FINALIZE THE VAULT CONQUEST →" : `CONTINUE TO ROOM ${bossRoom + 1} →`;
 
 aContainer.innerHTML = `
     <button id="continueBtn"
@@ -3331,7 +3332,7 @@ document.getElementById("continueBtn").onclick = () => {
 // It is a lightweight integrity check.
 // =============================================
 function generateCode(name, acc, streak, total){
-    let str = `${name}|${acc}|${streak}|${total}|ARCHIVE42`;
+    let str = `${name}|${acc}|${streak}|${total}|VAULT42`;
     let hash = 0;
 
     for(let i = 0; i < str.length; i++){
@@ -3339,7 +3340,7 @@ function generateCode(name, acc, streak, total){
         hash |= 0;
     }
 
-    return "ARCH-" + Math.abs(hash).toString(36).toUpperCase();
+    return "VAULT-" + Math.abs(hash).toString(36).toUpperCase();
 } 
 
 // =============================================
