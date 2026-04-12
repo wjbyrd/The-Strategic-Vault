@@ -1181,6 +1181,7 @@ document.querySelectorAll(".torch").forEach(t => t.style.display = "none");
 let totalAttempts = 0;
 let bossHealth = 3; 
 let bossPool = [];
+let bossCheckpoint = 1;
 let correctAnswers = 0; 
 let maxStreak = 0; 
 let username = "";
@@ -1453,7 +1454,8 @@ function startGame() {
         alert("A name is required to bind your soul to the Vault.");
         return;
     }
-    
+   
+	bossCheckpoint = 1;
     username = inputName;
     localStorage.setItem("gauntletUser", username);
 
@@ -1807,21 +1809,21 @@ medium: [
 {id:86, q:"A player randomizes strategies in equilibrium. A student says this is because the player is uncertain. What is the correct reason?",options:["To make the opponent indifferent between strategies","Because payoffs are unknown","Because strategies are random","Because equilibrium requires it"],a:0,type:"interpretation",tag:"game_theory",feedback:"Randomization is strategic—it prevents opponents from exploiting predictable behavior."}    
 ], 
 hard:[
-{id:100, q:"A risk-averse individual faces a gamble with a higher expected value than a certain outcome but still chooses the certain outcome. What must be true?",options:["The expected utility of the gamble is lower than the utility of the certain outcome","The individual miscalculated probabilities","The gamble has lower variance","The individual is risk neutral"],a:0,feedback:"Risk-averse individuals maximize expected utility, not expected value. A higher expected value gamble can still provide lower utility."},
-{id:101, q:"Two firms are in a Prisoner’s Dilemma. They both prefer cooperation but end up defecting. What is the core reason this outcome persists?",options:["Each firm’s best response is to defect regardless of the other’s action","Firms cannot calculate payoffs","Cooperation yields lower profits","The game lacks a Nash equilibrium"],a:0,feedback:"Defection is the dominant strategy, making it the Nash equilibrium even though cooperation would be better collectively."},
-{id:102, q:"In a sequential game, a firm threatens to cut prices if a rival enters the market, but doing so would reduce its own profits. Why is this threat not credible?",options:["It is not part of a subgame perfect equilibrium","It is not a dominant strategy","It does not change the payoff matrix","It violates Nash equilibrium"],a:0,feedback:"Subgame perfect equilibrium requires that strategies be optimal at every decision point. A threat that harms the firm is not credible."},
-{id:103, q:"An insurance company raises premiums after observing that only high-risk individuals are purchasing policies. What problem is the firm facing?",options:["Adverse selection","Moral hazard","Diminishing marginal utility","Strategic commitment"],a:0,feedback:"Adverse selection occurs when higher-risk individuals are more likely to purchase insurance, driving up costs."},
-{id:104, q:"In a repeated Prisoner’s Dilemma, cooperation is sustained using a trigger strategy. What is the key mechanism that makes this possible?",options:["The threat of future punishment outweighs short-term gains from cheating","Players become risk neutral over time","The payoff matrix changes each round","Communication becomes enforceable"],a:0,feedback:"If future interaction is likely, the long-term cost of punishment can deter short-term defection."},
-{id:105, q:"A consumer buys full insurance even when the premium exceeds the expected loss. What does this behavior imply?",options:["Strong risk aversion and a preference for certainty","The consumer is risk neutral","The insurer is losing money","The expected value is negative"],a:0,feedback:"Risk-averse individuals may pay more than expected loss to eliminate uncertainty because they value certainty in utility terms."},
-{id:106, q:"In a coordination game with multiple equilibria, players fail to coordinate on the best outcome. What concept can help them align expectations?",options:["Focal point","Dominant strategy","Mixed strategy","Moral hazard"],a:0,feedback:"Focal points help players coordinate on a likely outcome using shared expectations or context outside the game."},
-{id:107, q:"A mixed strategy equilibrium requires players to randomize their actions. What is the purpose of this randomization?",options:["To make opponents indifferent between their available strategies","To maximize total welfare","To eliminate all risk","To guarantee higher payoffs"],a:0,feedback:"Players randomize to keep opponents indifferent, preventing them from exploiting predictable behavior."},
-{id:108, q:"An insurer cannot distinguish between high-risk and low-risk individuals, leading to higher average premiums. What is the likely outcome?",options:["Low-risk individuals exit the market","All individuals buy more insurance","Risk disappears","Premiums fall"],a:0,feedback:"Adverse selection drives low-risk individuals out, leaving a riskier pool and higher premiums."},
-{id:109, q:"A firm commits to a strategy that limits its future choices to influence competitors’ behavior. What is this an example of?",options:["Strategic commitment","Adverse selection","Diminishing returns","Moral hazard"],a:0,feedback:"By committing to a strategy, a firm can credibly influence rivals’ expectations and actions."},
-{id:110, q:"In a sequential entry game, an incumbent builds excess capacity to deter entry. Why might this be effective?",options:["It makes the threat to flood the market more credible","It increases production costs for both firms","It eliminates demand uncertainty","It guarantees monopoly profits"],a:0,feedback:"Excess capacity can signal a credible threat to expand output and lower prices if entry occurs."},
-{id:111, q:"A gamble has zero expected value, but a risk-loving individual accepts it. What explains this decision?",options:["The utility of the gamble exceeds the utility of the certain outcome","The probabilities are incorrect","The gamble has no variance","The individual is risk neutral"],a:0,feedback:"Risk-loving individuals prefer higher variance and may gain higher expected utility from the gamble."},
-{id:112, q:"In a repeated game with a known final period, why does cooperation typically break down?",options:["Backward induction leads players to defect in every period","Players forget past actions","Payoffs become identical","Communication becomes impossible"],a:0,feedback:"In a finite game, players anticipate defection in the final period, unraveling cooperation backward."},
-{id:113, q:"Two players each choose strategies that are best responses to one another. What does this guarantee?",options:["A Nash equilibrium","A dominant strategy equilibrium","A Pareto efficient outcome","A mixed strategy outcome"],a:0,feedback:"A Nash equilibrium occurs when each player’s strategy is a best response to the other’s."},
-{id:114, q:"A policy eliminates all risk for individuals but reduces overall expected income. Why might individuals still prefer it?",options:["They maximize expected utility rather than expected value","They are risk loving","They ignore probabilities","They prefer lower income"],a:0,feedback:"Risk-averse individuals may accept lower expected income to eliminate uncertainty and increase utility."},
+{id:100,q:"A risk-averse individual faces a gamble with a higher expected value than a certain outcome but still chooses the certain outcome. What must be true?",options:["The expected utility of the gamble is lower than the utility of the certain outcome","The individual miscalculated probabilities","The gamble has lower variance","The individual is risk neutral"],a:0,tag:"risk",type:"interpretation",feedback:"Risk-averse individuals maximize expected utility, not expected value. A higher expected value gamble can still provide lower utility."},
+{id:101,q:"Two firms are in a Prisoner’s Dilemma. They both prefer cooperation but end up defecting. What is the core reason this outcome persists?",options:["Each firm’s best response is to defect regardless of the other’s action","Firms cannot calculate payoffs","Cooperation yields lower profits","The game lacks a Nash equilibrium"],a:0,tag:"game_theory",type:"interpretation",feedback:"Defection is the dominant strategy, making it the Nash equilibrium even though cooperation would be better collectively."},
+{id:102,q:"In a sequential game, a firm threatens to cut prices if a rival enters the market, but doing so would reduce its own profits. Why is this threat not credible?",options:["It is not part of a subgame perfect equilibrium","It is not a dominant strategy","It does not change the payoff matrix","It violates Nash equilibrium"],a:0,tag:"game_theory",type:"interpretation",feedback:"Subgame perfect equilibrium requires that strategies be optimal at every decision point. A threat that harms the firm is not credible."},
+{id:103,q:"An insurance company raises premiums after observing that only high-risk individuals are purchasing policies. What problem is the firm facing?",options:["Adverse selection","Moral hazard","Diminishing marginal utility","Strategic commitment"],a:0,tag:"insurance",type:"definition",feedback:"Adverse selection occurs when higher-risk individuals are more likely to purchase insurance, driving up costs."},
+{id:104,q:"In a repeated Prisoner’s Dilemma, cooperation is sustained using a trigger strategy. What is the key mechanism that makes this possible?",options:["The threat of future punishment outweighs short-term gains from cheating","Players become risk neutral over time","The payoff matrix changes each round","Communication becomes enforceable"],a:0,tag:"game_theory",type:"interpretation",feedback:"If future interaction is likely, the long-term cost of punishment can deter short-term defection."},
+{id:105,q:"A consumer buys full insurance even when the premium exceeds the expected loss. What does this behavior imply?",options:["Strong risk aversion and a preference for certainty","The consumer is risk neutral","The insurer is losing money","The expected value is negative"],a:0,tag:"insurance",type:"interpretation",feedback:"Risk-averse individuals may pay more than expected loss to eliminate uncertainty because they value certainty in utility terms."},
+{id:106,q:"In a coordination game with multiple equilibria, players fail to coordinate on the best outcome. What concept can help them align expectations?",options:["Focal point","Dominant strategy","Mixed strategy","Moral hazard"],a:0,tag:"game_theory",type:"definition",feedback:"Focal points help players coordinate on a likely outcome using shared expectations or context outside the game."},
+{id:107,q:"A mixed strategy equilibrium requires players to randomize their actions. What is the purpose of this randomization?",options:["To make opponents indifferent between their available strategies","To maximize total welfare","To eliminate all risk","To guarantee higher payoffs"],a:0,tag:"game_theory",type:"interpretation",feedback:"Players randomize to keep opponents indifferent, preventing them from exploiting predictable behavior."},
+{id:108,q:"An insurer cannot distinguish between high-risk and low-risk individuals, leading to higher average premiums. What is the likely outcome?",options:["Low-risk individuals exit the market","All individuals buy more insurance","Risk disappears","Premiums fall"],a:0,tag:"insurance",type:"interpretation",feedback:"Adverse selection drives low-risk individuals out, leaving a riskier pool and higher premiums."},
+{id:109,q:"A firm commits to a strategy that limits its future choices to influence competitors’ behavior. What is this an example of?",options:["Strategic commitment","Adverse selection","Diminishing returns","Moral hazard"],a:0,tag:"game_theory",type:"definition",feedback:"By committing to a strategy, a firm can credibly influence rivals’ expectations and actions."},
+{id:110,q:"In a sequential entry game, an incumbent builds excess capacity to deter entry. Why might this be effective?",options:["It makes the threat to flood the market more credible","It increases production costs for both firms","It eliminates demand uncertainty","It guarantees monopoly profits"],a:0,tag:"game_theory",type:"interpretation",feedback:"Excess capacity can signal a credible threat to expand output and lower prices if entry occurs."},
+{id:111,q:"A gamble has zero expected value, but a risk-loving individual accepts it. What explains this decision?",options:["The utility of the gamble exceeds the utility of the certain outcome","The probabilities are incorrect","The gamble has no variance","The individual is risk neutral"],a:0,tag:"risk",type:"interpretation",feedback:"Risk-loving individuals prefer higher variance and may gain higher expected utility from the gamble."},
+{id:112,q:"In a repeated game with a known final period, why does cooperation typically break down?",options:["Backward induction leads players to defect in every period","Players forget past actions","Payoffs become identical","Communication becomes impossible"],a:0,tag:"game_theory",type:"interpretation",feedback:"In a finite game, players anticipate defection in the final period, unraveling cooperation backward."},
+{id:113,q:"Two players each choose strategies that are best responses to one another. What does this guarantee?",options:["A Nash equilibrium","A dominant strategy equilibrium","A Pareto efficient outcome","A mixed strategy outcome"],a:0,tag:"game_theory",type:"definition",feedback:"A Nash equilibrium occurs when each player’s strategy is a best response to the other’s."},
+{id:114,q:"A policy eliminates all risk for individuals but reduces overall expected income. Why might individuals still prefer it?",options:["They maximize expected utility rather than expected value","They are risk loving","They ignore probabilities","They prefer lower income"],a:0,tag:"risk",type:"interpretation",feedback:"Risk-averse individuals may accept lower expected income to eliminate uncertainty and increase utility."},
 {id:115, q:"In a repeated game, cooperation breaks down when players heavily discount the future. Why?",options:["Future punishment is not valuable enough to deter defection","Players become risk neutral","The payoff matrix changes","Strategies become dominant"],a:0,tag:"game_theory",type:"interpretation",feedback:"If players value the future less, punishment threats lose power, making defection more attractive.",},    
 {id:116, q:"A gamble pays $200 with probability 0.4 and $0 otherwise. A risk-averse individual rejects it. Why?",options:["The expected utility is lower than the utility of certainty","The expected value is negative","The probability is too low","The variance is zero"],a:0,tag:"risk",type:"calculation",feedback:"Even with positive expected value, risk-averse individuals may reject due to diminishing marginal utility."},
 {id:117, q:"A risk-averse individual is offered two gambles with identical expected values, but one has higher variance. Which will they choose?",options:["The lower variance gamble","The higher variance gamble","They are indifferent","The gamble with higher probability"],a:0,tag:"risk",type:"interpretation",feedback:"Risk-averse individuals prefer lower variance when expected value is the same because utility is concave."},
@@ -1970,6 +1972,7 @@ function shuffleOptions(question){
         hint: question.hint,
         tag: question.tag,
         type: question.type
+		image: question.image
     };
 
     // Store correct answer BEFORE shuffle
@@ -2991,16 +2994,12 @@ function answer(choice) {
     bossHealth = 3;
     bossPool = [];
 
-    const bossRooms = [10, 20, 30];
+	let fallback = (room % 10 === 0 ? 3 : (room >= 21 ? 2 : 1));
+	let newRoom = room - fallback;
 
-    let fallback = (room % 10 === 0 ? 3 : (room >= 21 ? 2 : 1));
-    let newRoom = room - fallback;
+// Never fall back behind the most recently cleared boss gate
+	room = Math.max(bossCheckpoint, newRoom);
 
-    while (bossRooms.includes(newRoom)) {
-        newRoom++;
-    }
-
-    room = Math.max(1, newRoom);
     localStorage.setItem("gauntletRoom", room);
 
     alert(`Incorrect! You trip in the darkness and tumble back to Room ${room}.`);
@@ -3279,10 +3278,13 @@ aContainer.innerHTML = `
 // Breaking this = progression failure
 // =============================================    
 document.getElementById("continueBtn").onclick = () => {
-    // --- RESET BOSS STATE (THIS IS THE FIX) ---
     document.getElementById("gameShell").classList.remove("boss-mode");
     document.getElementById("gameBox").classList.remove("boss-mode");
     bossHealth = 3;
+
+    if(bossRoom === 10) bossCheckpoint = 11;
+    if(bossRoom === 20) bossCheckpoint = 21;
+    if(bossRoom === 30) bossCheckpoint = 31;
 
     if(bossRoom === 30){
         handleVictory();
