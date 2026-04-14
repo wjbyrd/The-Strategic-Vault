@@ -25,6 +25,30 @@ If something breaks, check:
 - Each question has: q, options, a, tag, type, feedback
 - Tags/types are consistent
 
+=====================================================
+QUICK EDIT GUIDE (READ THIS FIRST)
+
+If you are customizing this game, start here:
+
+MAIN EDIT ZONES:
+1. Question Banks (scroll to "QUESTION BANKS")
+2. Artifact Names & Images
+3. Wizard Name & Image
+4. Game Title + Text
+
+LAYOUT / STYLE EDITS:
+- Colors, fonts, spacing → SAFE
+- Layout structure → USE CAUTION
+
+DO NOT TOUCH:
+- Adaptive engine
+- Question selection logic
+- IDs used in JavaScript
+
+If you break something:
+→ Check IDs first
+→ Then check question format
+
 ===================================================== -->
 
 <!DOCTYPE html>
@@ -900,9 +924,46 @@ Keep layout clean and centered.
 .boss-mode #gameShell{
     justify-content:center;
 }
-
 /* =========================================
-   12. RESPONSIVE DESIGN — MOBILE FIRST (REWRITE)
+   12. MOBILE RESPONSIVE SYSTEM — SAFE TO EDIT (WITH LIMITS)
+=========================================
+
+This section controls how the game behaves on phones.
+
+GOAL:
+- Fit gameplay into a single screen as much as possible
+- Reduce vertical scrolling
+- Keep buttons thumb-friendly
+
+-----------------------------------------
+SAFE TO EDIT:
+- font sizes (clamp values)
+- spacing (gap, padding, margin)
+- grid layout (answers: 1fr 1fr vs 1fr)
+- wizard size (make smaller/larger)
+
+-----------------------------------------
+USE CAUTION:
+- removing elements entirely (may break flow)
+- changing flex direction randomly
+- making buttons too small (hurts usability)
+
+-----------------------------------------
+DO NOT MODIFY:
+- IDs (#gameShell, #gameBox, #wizardBox)
+- core layout structure
+
+-----------------------------------------
+COMMON CUSTOM CHANGES:
+- Want bigger buttons? Increase min-height
+- Want less scrolling? Reduce padding/gaps
+- Want simpler UI? Hide artifact labels
+
+-----------------------------------------
+TIP:
+Mobile design is about SPACE, not style.
+Every pixel matters.
+
 ========================================= */
 
 @media (max-width: 768px){
@@ -941,7 +1002,35 @@ Keep layout clean and centered.
     font-size: 11px;
   }
 
-  /* maze */
+/* =========================================
+   MAZE TRACK (PROGRESSION GRID)
+
+Controls:
+- 30-room visual tracker (10x3 grid)
+- player position feedback
+- boss indicators
+
+-----------------------------------------
+SAFE TO EDIT:
+- box size (.maze-box)
+- spacing (gap)
+- colors and glow
+
+-----------------------------------------
+USE CAUTION:
+- grid-template-columns (must stay 10)
+- extreme sizing (can overflow screen)
+
+-----------------------------------------
+DO NOT CHANGE:
+- total structure (30 rooms)
+
+-----------------------------------------
+TIP:
+On mobile, shrinking gap and font-size
+saves a LOT of vertical space.
+
+========================================= */
   #mazeTrackContainer{
     width: 100%;
     max-width: 100%;
@@ -969,7 +1058,35 @@ Keep layout clean and centered.
     height: 16px;
   }
 
-  /* artifact area tighter */
+/* =========================================
+   ARTIFACT VAULT (REWARD DISPLAY)
+
+Controls:
+- unlocked items
+- visual reward system
+- top HUD footprint
+
+-----------------------------------------
+SAFE TO EDIT:
+- icon size
+- spacing
+- label text
+
+-----------------------------------------
+USE CAUTION:
+- opacity (controls locked vs unlocked)
+- layout (affects mobile height)
+
+-----------------------------------------
+DO NOT MODIFY:
+- .artifactSlot.unlocked (JS controlled)
+
+-----------------------------------------
+TIP:
+If mobile is too tall, shrink this section
+or hide labels entirely.
+
+========================================= */
   #artifactVault{
     width: 100%;
     max-width: 100%;
@@ -1022,7 +1139,29 @@ Keep layout clean and centered.
     margin: 0 auto;
   }
 
-  /* wizard smaller */
+/* =========================================
+   WIZARD PANEL — SAFE TO RESIZE
+
+Controls:
+- wizard image
+- wizard name
+- vertical footprint
+
+-----------------------------------------
+SAFE TO EDIT:
+- width / max-width (mobile especially)
+- padding (reduce for smaller screens)
+- image size (#wizardImage)
+
+-----------------------------------------
+DO NOT REMOVE:
+- flex layout (keeps alignment correct)
+
+-----------------------------------------
+TIP:
+If mobile feels cramped, shrink THIS first.
+
+========================================= */
   #wizardBox{
     width: 100%;
     max-width: 170px;
@@ -1102,8 +1241,34 @@ Keep layout clean and centered.
     height: auto;
     text-align: center;
   }
+/* =========================================
+   ANSWER SYSTEM (INTERACTION CORE)
 
-  /* answer grid tighter */
+Controls:
+- layout of answer choices
+- button sizing and spacing
+
+-----------------------------------------
+SAFE TO EDIT:
+- grid vs column layout
+- button size (min-height)
+- font size
+
+-----------------------------------------
+USE CAUTION:
+- making buttons too small
+- changing layout drastically
+
+-----------------------------------------
+COMMON OPTIONS:
+- 2x2 grid (compact, less scrolling)
+- 1 column (easier reading, more scroll)
+
+-----------------------------------------
+TIP:
+2x2 grid is best for mobile balance.
+
+========================================= */
   .answers{
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1202,7 +1367,28 @@ Respect structure strictly.
 </div>
 <div class="dungeon-container">
     <button class="fullscreenBtn" onclick="goFullscreen()">FULLSCREEN</button>
-    <!-- TOP PANEL - CHANGE NAME IN TITLE -->
+<!-- =========================================
+TOP PANEL (HUD)
+
+Contains:
+- Title
+- Maze tracker
+- Artifact vault
+
+SAFE TO EDIT:
+- text
+- layout spacing
+- visuals
+
+DO NOT REMOVE:
+- mazeTrack
+- artifactVault
+
+TIP:
+If mobile is cramped, reduce artifact size
+or simplify this section.
+
+========================================= -->
     <!-- Top panel: progress track + artifact vault -->
     <div class="top-panel">
        <div class="top-title">The Strategic Vault</div>
@@ -1391,7 +1577,8 @@ let questionHistory = {
 // - question balance
 //
 // Only advanced users should modify this.
-
+// =============================================
+	
 function weightedPick(pool){
     let totalWeight = 0;
 
