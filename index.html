@@ -905,127 +905,168 @@ Keep layout clean and centered.
    12. RESPONSIVE DESIGN — MOBILE FIRST (REWRITE)
 ========================================= */
 
-/* ===== BASE = MOBILE ===== */
+/* ===== MOBILE TIGHTEN-UP PATCH ===== */
+@media (max-width: 768px){
 
-#gameShell{
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  padding: 12px;
-  gap: 12px;
-  box-sizing: border-box;
-}
+  /* overall spacing */
+  .dungeon-container{
+    gap: 10px;
+    margin-top: 8px;
+  }
 
-.main-panel{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
+  .top-panel{
+    gap: 4px;
+    margin-bottom: 4px;
+  }
 
-/* Wizard on top */
-#wizardBox{
-  width: 100%;
-  max-width: 220px;
-  margin: 0 auto;
-}
+  .top-title{
+    font-size: clamp(14px, 3.8vw, 20px);
+    margin-bottom: 2px;
+  }
 
-/* Game box fills width */
-#gameBox{
-  width: 100%;
-  padding: 14px;
-}
+  /* fullscreen button stops hogging space */
+  .fullscreenBtn{
+    position: static;
+    align-self: flex-start;
+    margin: 0 0 6px 0;
+    font-size: 12px;
+    padding: 8px 12px;
+  }
 
-/* Maze becomes flexible */
-#mazeTrack{
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: clamp(4px, 1vw, 8px);
-}
+  /* maze track tighter and fully contained */
+  #mazeTrackContainer{
+    width: 100%;
+    max-width: 100%;
+    padding: 4px 2px;
+    overflow-x: hidden;
+  }
 
-.maze-box{
-  aspect-ratio: 1 / 1;
-  font-size: clamp(12px, 3vw, 18px);
-}
+  #mazeTrack{
+    gap: 4px;
+    width: 100%;
+  }
 
-/* Buttons for thumbs */
-.answers{
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
+  .maze-box{
+    min-width: 0;
+    aspect-ratio: 1 / 1;
+    font-size: 12px;
+    border-radius: 4px;
+  }
 
-.answers button{
-  width: 100%;
-  min-height: clamp(60px, 12vw, 75px);
-  font-size: clamp(14px, 3.8vw, 18px);
-  padding: 16px;
-}
+  .boss-icon{
+    width: 20px;
+    height: 20px;
+  }
 
-/* Images scale properly */
-#questionImageBox img{
-  width: 100%;
-  max-width: 420px;
-  height: auto;
-}
+  /* artifact panel: much shorter */
+  #artifactVault{
+    max-width: 100%;
+    padding: 8px 10px;
+  }
 
-/* Text scales */
-.title{
-  font-size: clamp(28px, 7vw, 64px);
-}
+  #artifactVault h3{
+    font-size: 16px;
+    margin: 0 0 8px 0;
+  }
 
-.subtitle{
-  font-size: clamp(16px, 4vw, 34px);
-}
+  .vaultRow{
+    gap: 10px;
+    align-items: flex-start;
+  }
 
-#question{
-  font-size: clamp(16px, 4.2vw, 22px);
-}
+  .artifactSlot{
+    min-width: 0;
+    flex: 1 1 0;
+  }
 
-/* Top panel tighter */
-.top-title{
-  font-size: clamp(16px, 4vw, 22px);
-}
+  .artifactSlot img{
+    width: 26px;
+    margin-bottom: 2px;
+  }
 
-#artifactVault{
-  width: 100%;
-  padding: 8px;
-}
+  .artifactSlot span{
+    font-size: 10px;
+    line-height: 1.1;
+    margin-top: 4px;
+  }
 
-.artifactSlot img{
-  width: clamp(28px, 6vw, 45px);
-}
-
-/* ===== DESKTOP OVERRIDE ===== */
-
-@media (min-width: 900px){
-
+  /* wizard card: shorter */
   #gameShell{
-    flex-direction: row;
-    align-items: stretch;
-    max-width: 1000px;
-    padding: 20px;
+    padding: 10px;
+    gap: 10px;
   }
 
   #wizardBox{
-    flex: 0 0 180px;
-    max-width: 180px;
+    max-width: 220px;
+    min-height: auto;
+    padding: 8px;
+    gap: 4px;
   }
 
+  #wizardName{
+    font-size: 11px;
+    margin-top: 2px;
+    margin-bottom: 4px;
+    padding-bottom: 3px;
+  }
+
+  #wizardImage{
+    max-width: 120px;
+  }
+
+  /* game card moves up visually */
   #gameBox{
-    flex: 1;
+    padding: 12px;
   }
 
-  .main-panel{
-    flex-direction: row;
+  #autosave{
+    position: static;
+    display: block;
+    text-align: right;
+    margin-bottom: 6px;
+    font-size: 11px;
   }
-}
 
-/* ===== TOUCH IMPROVEMENTS ===== */
+  .area-title{
+    font-size: 12px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
 
-html, body{
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
+  #progressBar{
+    height: 16px;
+    margin-bottom: 12px;
+  }
+
+  #streakDisplay{
+    margin-bottom: 8px;
+  }
+
+  #question{
+    font-size: clamp(16px, 4.5vw, 22px);
+    line-height: 1.35;
+    margin: 10px 0;
+  }
+
+  #message{
+    margin-top: 6px;
+    font-size: 15px;
+  }
+
+  /* answer layout: 2x2 like your screenshot, but tighter */
+  .answers{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .answers button{
+    min-height: 64px;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
 }
    
 </style>
