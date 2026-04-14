@@ -902,66 +902,131 @@ Keep layout clean and centered.
 }
 
 /* =========================================
-   12. RESPONSIVE DESIGN — MOBILE ADJUSTMENTS
-=========================================
-
-Applies layout changes for smaller screens (≤ 600px).
-
-Ensures:
-- maze tracker stays visible
-- game content fits without overflow
-- answer buttons stack vertically
-
------------------------------------------
-SAFE TO EDIT:
-- sizes (maze-box, scaling)
-- button layout (flex behavior)
-- scale amount for gameBox
-
------------------------------------------
-USE CAUTION:
-- removing transform scaling may cause overflow
-- changing button flex may break readability
-
------------------------------------------
-DO NOT REMOVE:
-This section is required for mobile usability.
-
-Without it:
-- layout will overflow screen
-- buttons may be cut off
-- UI becomes hard to use on phones
-
------------------------------------------
-TIP:
-Test changes on both:
-- desktop (full width)
-- mobile (narrow screen)
-
-This controls responsiveness, not game logic.
+   12. RESPONSIVE DESIGN — MOBILE FIRST (REWRITE)
 ========================================= */
-/* Base mobile rules */
-@media (max-width: 768px){
-  #gameShell{padding:10px;gap:10px;}
-  .main-panel{flex-direction: column;align-items: center;  }
-  #question{font-size:1.2rem;line-height:1.4;text-align:center;}
-  button{width:100%;padding:14px;font-size:16px;}
-  #wizardBox{width:100%;max-width:260px;margin-bottom:12px;}
-  #wizardImage{width:100%;max-width:120px;}}
 
-@media (max-width: 900px) and (orientation: landscape){
-  .title{font-size: clamp(36px, 5vw, 56px);margin-bottom:6px;}
-  .subtitle{font-size:18px;margin-bottom:12px;}
-  .tagline{font-size:14px;margin-bottom:12px;}
-  .name-input{width:100%;max-width:280px;font-size:16px;padding:12px;margin-bottom:10px;}
-  #startScreen{justify-content: center;overflow: hidden;}
-  .start-content{transform: scale(0.92);}
-  .start-btn{width:100%;max-width:280px;font-size:16px;padding:12px;}}
+/* ===== BASE = MOBILE ===== */
 
-@media (max-width: 768px) and (orientation: portrait){
-  .main-panel{flex-direction:column;align-items:center;}}
+#gameShell{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 12px;
+  gap: 12px;
+  box-sizing: border-box;
+}
 
-   .fullscreenBtn{top:5px;left:5px;padding:4px 8px;font-size:10px;}
+.main-panel{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Wizard on top */
+#wizardBox{
+  width: 100%;
+  max-width: 220px;
+  margin: 0 auto;
+}
+
+/* Game box fills width */
+#gameBox{
+  width: 100%;
+  padding: 14px;
+}
+
+/* Maze becomes flexible */
+#mazeTrack{
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: clamp(4px, 1vw, 8px);
+}
+
+.maze-box{
+  aspect-ratio: 1 / 1;
+  font-size: clamp(12px, 3vw, 18px);
+}
+
+/* Buttons for thumbs */
+.answers{
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.answers button{
+  width: 100%;
+  min-height: clamp(60px, 12vw, 75px);
+  font-size: clamp(14px, 3.8vw, 18px);
+  padding: 16px;
+}
+
+/* Images scale properly */
+#questionImageBox img{
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+}
+
+/* Text scales */
+.title{
+  font-size: clamp(28px, 7vw, 64px);
+}
+
+.subtitle{
+  font-size: clamp(16px, 4vw, 34px);
+}
+
+#question{
+  font-size: clamp(16px, 4.2vw, 22px);
+}
+
+/* Top panel tighter */
+.top-title{
+  font-size: clamp(16px, 4vw, 22px);
+}
+
+#artifactVault{
+  width: 100%;
+  padding: 8px;
+}
+
+.artifactSlot img{
+  width: clamp(28px, 6vw, 45px);
+}
+
+/* ===== DESKTOP OVERRIDE ===== */
+
+@media (min-width: 900px){
+
+  #gameShell{
+    flex-direction: row;
+    align-items: stretch;
+    max-width: 1000px;
+    padding: 20px;
+  }
+
+  #wizardBox{
+    flex: 0 0 180px;
+    max-width: 180px;
+  }
+
+  #gameBox{
+    flex: 1;
+  }
+
+  .main-panel{
+    flex-direction: row;
+  }
+}
+
+/* ===== TOUCH IMPROVEMENTS ===== */
+
+html, body{
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
    
 </style>
 </head>
