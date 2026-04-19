@@ -3730,7 +3730,7 @@ function handleVictory() {
     const totalTimeMs = Date.now() - startTime;
     const timeString = formatTime(totalTimeMs);
     const accuracy = Math.round((correctAnswers / totalAttempts) * 100);
-    const verificationCode = generateCode(username, accuracy, maxStreak, totalTimeMS);
+    const verificationCode = generateCode(username, accuracy, maxStreak, totalTimeMs);
 
 sendGameData({
     game: "The Strategic Vault",
