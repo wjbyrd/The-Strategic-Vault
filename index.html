@@ -445,7 +445,13 @@ If it's unclear, motivation drops.
 #progressBar { width: 100%; height: 22px; background: #2d3748; border-radius: 12px; margin-bottom: 20px; overflow: hidden; }
     
 /* Progress fill — width controlled by JS */    
-#progressFill { height: 100%; width: 0%; background: linear-gradient(90deg, #f59e0b, #ef4444); transition: width 0.4s ease; }
+#progressFill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #1d4ed8, #0ea5e9);
+  box-shadow: 0 0 10px rgba(37,99,235,0.45);
+  transition: width 0.4s ease;
+}
 
 /* Maze grid layout — 10 columns = 30 total rooms */
 #mazeTrack { display: grid; grid-template-columns: repeat(10, 36px); justify-content: center; gap: 10px; margin: 25px auto; }
@@ -3235,12 +3241,12 @@ function updateMazeTrack() {
         
         // Determine the icon and state
         if (i < room) {
-            box.innerText = "🟧";
+            box.innerText = "🟪";
             box.style.opacity = "0.6";
         } else if (i === room) {
             box.classList.add("active"); // Trigger the gold pulse
             box.setAttribute("aria-label",`Current room ${i} of 30`);
-            box.innerText = "🟥";
+            box.innerText = "🟦";
         } else {
             // Boss icons for future rooms
             if (i === 10){box.innerHTML = '<img src="tyrant.png" class="boss-icon">';box.classList.add("boss10");}
